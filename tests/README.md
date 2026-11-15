@@ -37,6 +37,17 @@ adapters in `covariance/`. pytest does not collect `reference/`,
 [validation tools section](#des_cluster_validation) describes these
 validation tools.
 
+The data-vector sector includes the setting-sequence tests
+(`data_vector/test_setting_sequences.py`): they change cosmolike
+settings in one process, as a notebook does between evaluations, and
+compare every result bit for bit with a separate process that saw only
+the final settings. A change the loaded data layout cannot follow must
+stop with a clear message instead of returning numbers computed from
+the earlier settings. The cluster sequences assert those refusals: a
+cluster probe selection or the Y transform changed after the cluster
+data files are loaded stops with a message naming `init_data_cluster`,
+and so does a cluster evaluation after `initial_setup` alone.
+
 These steps assume Cocoa and this project are installed, the Cocoa Conda environment
 is active, the shell is Bash, and the current folder is `cocoa/Cocoa/`.
 
