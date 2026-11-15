@@ -242,8 +242,14 @@ PYBIND11_MODULE(cosmolike_des_cluster_interface, m)
     );
 
   m.def("initial_setup",
-      &cosmolike_interface::initial_setup,
-      "Initialize Cosmolike Variables to their Default Values"
+      []() {
+        // the cluster state lives outside the core structs: a second
+        // model in one process must not inherit the first one's
+        cosmolike_interface::initial_setup();
+        cosmolike_interface::reset_cluster();
+      },
+      "Initialize Cosmolike Variables (galaxy and cluster) to their "
+      "Default Values"
     );
 
   m.def("init_redshift_distributions_from_files",
