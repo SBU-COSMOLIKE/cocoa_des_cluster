@@ -266,6 +266,8 @@ ten_in_a_row_chi2 = _H.ten_in_a_row_chi2
 # name (cocoa_testing._WORKER_DRIVER), so this re-export is
 # load-bearing even though no test module calls it
 _worker = _H._worker
+# the setting-sequence worker (setting_sequence_suite spawns it)
+_sequence_worker = _H._sequence_worker
 _run_isolated = _H._run_isolated
 
 # ---- one data set per process -----------------------------------------------
@@ -291,4 +293,6 @@ nonlinear_suite = _cct_suites.nonlinear_suite
 photoz_conventions_suite = _cct_suites.photoz_conventions_suite
 nonlimber_suite = _cct_suites.nonlimber_suite
 cache_ladder_suite = _cct_suites.cache_ladder_suite
+setting_sequence_suite = _cct_suites.setting_sequence_suite
+common_sequences = _cct_suites.common_sequences
 freeze_main = _cct_freeze.freeze_main
