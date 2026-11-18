@@ -296,4 +296,5 @@ lowrank_gg_suite = _cct_suites.lowrank_gg_suite
 cache_ladder_suite = _cct_suites.cache_ladder_suite
 setting_sequence_suite = _cct_suites.setting_sequence_suite
 common_sequences = _cct_suites.common_sequences
+nonlimber_tolerance_suite = _cct_suites.nonlimber_tolerance_suite
 freeze_main = _cct_freeze.freeze_main
