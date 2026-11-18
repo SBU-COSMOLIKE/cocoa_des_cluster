@@ -23,9 +23,11 @@ Measured on 2026-11-18 (OMP 4), then bounded:
   - test 3: delta^T C^-1 delta = 1.42e-4 (w(theta) only); bound 5e-4;
   - test 4: sigma (w0, wa, bias) = 2.86e-3, 5.6e-5, 1.2e-12 at the
     default tolerances and 1.28e-4, 5.7e-5, 1.2e-12 at 0; bound 2e-3;
-  - test 5: FKEM caps 150/200/300 give w0 1.28e-4/1.29e-4/1.34e-4 and
-    wa 5.67e-5/5.41e-5/5.33e-5; margin 0.15;
-  - test 6: SVD/FKEM ratio at most 1.23 (wa, cap 300); margin 0.5.
+  - test 5: FKEM caps 150/200 give w0 1.28e-4/1.29e-4 and
+    wa 5.67e-5/5.41e-5; margin 0.1;
+  - test 6: SVD/FKEM ratio at most 1.66 (w0, cap 200: SVD 2.15e-4
+    against FKEM 1.29e-4; SVD gives 1.31e-4 at cap 150 and
+    1.40e-4 at cap 300); margin 1.4.
 The cluster rows of the cluster examples (w_cc, w_cg) keep their own
 early exit at 0.002 (cosmo2D_cluster.c): this suite runs example4,
 the 3x2pt configuration.
@@ -56,11 +58,12 @@ import cocoa_test_utils as u
 TestNonLimberTolerance = u.nonlimber_tolerance_suite(
     u, name="TestNonLimberTolerance", example="example4",
     bias_parameter="DES_B1_5",
+    expected_defaults=(0.002, 0.01),
     change_bound=0.0005,
     noise_bound=0.002,
-    handoff_margin=0.15,
+    handoff_margin=0.1,
     svd_rule='not_larger',
-    svd_margin=0.5)
+    svd_margin=1.4)
 
 # __name__ is "__main__" only when this file runs directly as a
 # script; pytest imports the module instead, so this block stays

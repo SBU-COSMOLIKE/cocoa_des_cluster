@@ -12,6 +12,9 @@ pk_z_refinement: 1
 # 0 = no early exit (Fisher derivatives); accuracyboost > 1 shrinks them
 nonlimber_tolerance_gg: 0.002
 nonlimber_tolerance_gs: 0.01
+# the FKEM non-Limber cap (limits.LMAX_NOLIMBER): C_gg and C_gs are
+# non-Limber below it and Limber above; 150 is the cosmolike default
+lmax_nonlimber: 150
 # integer 0, 1 or 2. 1 for the Y6 inputs: the knob sweep (tests/validation/
 # knob_sweep.py) gives delta chi2 1.65 at 0 vs high accuracy (galaxy gammat
 # 0.92, w_gg 0.47: the MagLim lens n(z) tails reach z = 2.99) and 0.048 at 1
