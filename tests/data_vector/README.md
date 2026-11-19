@@ -79,23 +79,30 @@ per model build and per evaluation, then a report with the
 computed $\chi^2$, the stored reference, the difference, and the pass
 limit.
 
-A full run performs about 345 likelihood evaluations, about 220 of
-them on the cluster combinations. The test files force
-`OMP_NUM_THREADS=4` internally, and every model build of the
-reference, race, and accuracy tests runs in its own worker subprocess:
-cosmolike aborts a process that initializes two configurations with
-different data-set dimensions, and the cluster and the galaxy-only
-examples use two data sets (2812 and 900 entries). The two
-covariances of the frozen data (`frozen/data/des_cluster_y6_cov.npy`,
-32 MB, and `frozen/data/des_y3_cov_unblinded_final.txt`, 19 MB) are
-stored with Git LFS: a clone without `git lfs pull` holds a pointer
-file in place of each, and every test except the four that read the
-live data set (`test_neutrino_cb.py`, `test_cluster_area.py`,
-`test_cluster_zdist_convention.py`, `test_nonlimber_cluster.py`) then
-stops at the manifest check, naming the file.
+A full run performs about 345 likelihood evaluations, about 220 of them on
+the cluster combinations. The test files set their OpenMP worker count
+before imports, and every model build of the reference, race, and accuracy
+tests runs in its own worker subprocess: cosmolike aborts a process that
+initializes two configurations with different data-set dimensions, and the
+cluster and the galaxy-only examples use two data sets (2812 and 900
+entries). The two covariances of the frozen data
+(`frozen/data/des_cluster_y6_cov.npy`, 32 MB, and
+`frozen/data/des_y3_cov_unblinded_final.txt`, 19 MB) are stored with Git
+LFS: a clone without `git lfs pull` holds a pointer file in place of each,
+and every test except the four that read the live data set
+(`test_neutrino_cb.py`, `test_cluster_area.py`,
+`test_cluster_zdist_convention.py`, `test_nonlimber_cluster.py`) then stops
+at the manifest check, naming the file.
 
 This sector has 42 tests. They take about 10 minutes on an Apple M2
 laptop (602 s of pytest time at the forced 4 OpenMP threads).
+
+The shared likelihood tests default to four OpenMP workers. For six workers,
+set `COCOA_TEST_OMP_THREADS=6` and `OMP_THREAD_LIMIT=6` before
+starting Python. The entry points copy the test setting to
+`OMP_NUM_THREADS` before importing native libraries. Keep BLAS at
+one worker. A smaller OpenMP thread limit can reduce the actual team
+below the requested count.
 
 ## The tests <a name="the_tests"></a>
 
