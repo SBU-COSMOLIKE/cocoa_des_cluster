@@ -187,6 +187,8 @@ COVERH0 = 2997.92458
 # where the dataset lives. Set them with configure() BEFORE
 # init_cosmolike: the init sequence reads them.
 _CONFIG = {
+    # Upper redshift, independent of sampling; matches this project YAML.
+    "nonlimber_zmax": 4.0,
     "lmax": 75000,              # base of the internal C_ell tables
     "accuracyboost": 1.0,
     "integration_accuracy": 1,  # 1 for the Y6 inputs (see the yaml)
@@ -239,6 +241,11 @@ def configure(**overrides):
     silently. Call it before init_cosmolike (the init sequence reads
     the model switches).
 
+    The endpoint can also change after initialization. Updating the compiled
+    setting here makes the next prediction rebuild the affected projections,
+    including helpers that prepare CAMB directly instead of using _set_state.
+    It must be finite and at least 4.0; invalid values leave _CONFIG intact.
+
     Arguments:
       overrides = keyword form of any _CONFIG entry, e.g.
                   configure(cluster_ytransform=0).
@@ -248,7 +255,14 @@ def configure(**overrides):
 
     Raises:
       KeyError naming the unknown keyword and the valid names.
+      ValueError for a nonfinite endpoint or one below 4.0.
     """
+    if "nonlimber_zmax" in overrides:
+        endpoint = float(overrides["nonlimber_zmax"])
+        if not np.isfinite(endpoint) or endpoint < 4.0:
+            raise ValueError(
+                f"nonlimber_zmax = {endpoint}; choose a finite value >= 4.0")
+
     if overrides.get("photoz_histogram_akima", 0) not in (0, 1):
         raise ValueError("photoz_histogram_akima must be 0 or 1")
 
@@ -258,6 +272,8 @@ def configure(**overrides):
                 f"configure() got unknown option '{name}'; valid options: "
                 + ", ".join(sorted(_CONFIG)))
         _CONFIG[name] = value
+    if "nonlimber_zmax" in overrides:
+        ci.init_nonlimber_zmax(zmax=endpoint)
 
 
 def _ini_list(ini, key, tp):
@@ -345,6 +361,7 @@ def init_cosmolike(CLprobe="6x2pt_N", with_data=False, lmax=None):
         cg_lens_bins=_ini_list(ini, "cg_lens_bins", int))
 
     ci.initial_setup()
+    ci.init_nonlimber_zmax(zmax=float(_CONFIG["nonlimber_zmax"]))
     ci.reset_cluster()  # cluster defaults + fresh cluster cache keys
     ci.init_probes_cluster(possible_probes=CLprobe)
     ci.init_binning(_DATASET["ntheta"],
@@ -567,6 +584,7 @@ def _set_state(omegam, omegab, H0, ns, As_1e9, w, w0pwa, mnu,
       ValueError from _apply_baryon_suppression when sup does not fit
       the redshift grid.
     """
+    ci.init_nonlimber_zmax(zmax=float(_CONFIG["nonlimber_zmax"]))
     (log10k_interp_2D, z_interp_2D, lnPL, lnPNL,
      G_growth, z_growth, z_interp_1D, chi,
      omegan2, lnPL_cb) = _camb_cosmology(
