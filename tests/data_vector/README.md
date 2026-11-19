@@ -258,9 +258,23 @@ contribution of each lens-source pair.
 > [!NOTE]
 > Both non-Limber checks pin $\Delta\chi^2$ to the value recorded in the
 > constant `DCHI2_MEASURED` of the test file, within 5% (`DCHI2_RTOL`):
-> $\Delta\chi^2 = 0.012494$ for galaxy-galaxy lensing and
-> $\Delta\chi^2 = 7.12375$ for galaxy clustering, at the frozen 3x2pt
+> $\Delta\chi^2 = 0.012479$ for galaxy-galaxy lensing and
+> $\Delta\chi^2 = 7.08798$ for galaxy clustering, at the frozen 3x2pt
 > fiducial with NLA.
+
+Across the examples' prior box ($\Omega_m$ in $[0.2, 0.5]$,
+$w_0 + w_a$ in $[-3, -0.01]$; 25 drawn and 5 held models, seed base
+137) with the examples' amplitude cut, which keeps the ratio
+$(A_s/A_s^{\rm fid})(b_i/b_i^{\rm fid})^2 \le 8$ over the sampled
+lens bins, the Limber choice holds at every held model (maximum
+$\Delta\chi^2 = 0.134$ at the production cap 150) but not at every
+drawn one: 7 of 25 drawn models are at or above 0.2, with a maximum of
+$\Delta\chi^2 = 1.01$. The drawn models above 0.2 carry $A_s$ up to
+$5.0\times10^{-9}$ or NLA amplitudes (`DES_A1_1`, flat in $[-5, 5]$)
+up to 4.8, and are accepted: the galaxy-shear intrinsic-alignment (GI)
+term carries a Limber error 2 to 3 times the clustering one, because
+the intrinsic shear follows the tidal field, and it grows with the IA
+amplitudes while the covariance stays fiducial.
 
 ### The non-Limber galaxy clustering check (`test_nonlimber_gg.py`) <a name="nonlimber_gg"></a>
 
@@ -370,6 +384,16 @@ divides the tolerances in use by $1 + 2\,(\mathrm{boost} - 1)$. The
 Fourier data vectors (`C_gg_tomo_ells`, `C_gs_tomo_ells`) never take
 the exit.
 
+This project keeps the early exit at the core defaults in production:
+at the fiducial it moves the vector by $\delta^T C^{-1} \delta$ =
+1.42e-4, far below the 0.2 band. Fisher derivatives and stencil-noise
+measurements run with both tolerances at 0, because the switch
+multipole puts steps into finite-difference derivatives (the $w_0$
+column below drops from 2.86e-3 to 1.28e-4); the derivative helpers of
+`cosmolike_notebook_utils/fisher.py` switch the exit off for each
+evaluation and restore the yaml values afterwards. The production cap
+stays at the cosmolike default, `lmax_nonlimber: 150`.
+
 `test_nonlimber_tolerance.py` builds the `example4` (3x2pt, NLA) model
 once and runs the shared checks of `nonlimber_tolerance_suite`
 (`cosmolike_core/cocoa_testing_suites.py`): the frozen $\chi^2$, the
@@ -377,10 +401,11 @@ documented defaults and a bit-for-bit tolerance round trip (tests 1-2);
 tolerance 0 moves only $\gamma_t$ and $w(\theta)$, and by a bounded
 $\delta^T C^{-1} \delta$ (test 3); the stencil noise of the $w_0$, $w_a$
 and `DES_B1_5` derivative columns with and without the early exit (test
-4); the FKEM hand-off at the caps `lmax_nonlimber` = 150, 200 and 300
+4); the FKEM hand-off at the caps `lmax_nonlimber` = 150 and 200
 (test 5: a step at the hand-off would raise the noise at the lower cap,
 where the FKEM-Limber difference is largest); the low-rank (SVD) engine
-next to FKEM at caps 150 and 300 (test 6); that a negative or nonfinite
+next to FKEM at caps 150 and 200, with the galaxy-shear cap matched
+between the engines in each pair (test 6); that a negative or nonfinite
 tolerance is refused (test 7); the accuracy-boost scaling of the
 tolerances in use (test 8); and that the production state returns bit
 for bit (test 9). The noise is $\sigma$ of `get_stencil_noise`
@@ -392,24 +417,23 @@ Measured on 2026-11-18 (OMP 4), $\sigma$ in $\sqrt{\chi^2}$ units:
 
 | stencil noise $\sigma$ | $w_0$ | $w_a$ | `DES_B1_5` |
 |---|---|---|---|
-| default tolerances, cap 150 | 2.86e-3 | 5.6e-5 | 1.2e-12 |
+| default tolerances, cap 150 (production) | 2.86e-3 | 5.6e-5 | 1.2e-12 |
 | tolerance 0, cap 150 | 1.28e-4 | 5.7e-5 | 1.2e-12 |
 | tolerance 0, cap 200 | 1.29e-4 | 5.41e-5 | - |
-| tolerance 0, cap 300 | 1.34e-4 | 5.33e-5 | - |
 
-The suite runs the 3x2pt configuration: the cluster rows of the
+These checks run the 3x2pt configuration: the cluster rows of the
 cluster configurations ($w_{cc}$, $w_{cg}$) keep their own fixed
 early exit at 0.002 inside `cosmo2D_cluster.c`, which this setting
 does not reach. $\gamma_t$ is Limber here (`adopt_limber_gs: 1`), so
 only the clustering tolerance acts. Turning the exit off moves the
 fiducial vector by $\delta^T C^{-1} \delta$ = 1.42e-4 ($w(\theta)$
-only; test 3 bound 5e-4), and the vector moves by 7.0e-4 between the
-caps 150 and 300. The largest
+only; test 3 bound 5e-4). The largest
 $|C_\ell^{\rm FKEM}/C_\ell^{\rm Limber} - 1|$ over the lens bins
-is 1.6e-3 / 8.8e-4 / 5.2e-4 at $\ell$ = 149 / 199 / 299. Test 4
-bounds every tolerance-0 column by 2e-3; test 5 allows cap 150 at
-most 1.15 times cap 300; the SVD/FKEM noise ratio is at most 1.23
-(margin 0.5).
+is 1.6e-3 / 8.8e-4 at $\ell$ = 149 / 199. Test 4 bounds every
+tolerance-0 column by 2e-3; test 5 allows cap 150 at most 1.1 times
+cap 200; test 6 allows the SVD noise at most 2.4 times FKEM with the
+galaxy-shear cap matched (measured in $w_0$: at most 1.03 times FKEM
+at cap 150 and 1.66 times at cap 200).
 
 Run it alone with
 
