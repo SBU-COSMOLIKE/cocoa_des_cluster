@@ -1,0 +1,1029 @@
+{
+  "date": "2026-11-19",
+  "scope": "Update numerical references at the chosen project endpoint; also record cumulative drift since their previous generation.",
+  "previous_reference_project_commit": "77aee1790e8ed4999f4fe2691280367dea9f5134",
+  "previous_reference_commit_description": "Refreeze the test snapshot on the regenerated data\n\n    python ./projects/des_cluster/tests/generate_frozen_reference.py --overwrite\n\nThe snapshot now copies:\n- the data and covariance of 2144349;\n- the dataset's cluster_zmid_convention key (157f80a);\n- the non-Limber cluster_adopt_limber_cc/cg of the examples (b3be2a7);\n- photoz_histogram_akima, a likelihood default (0, inert) added since\n  the 2026-10-03 freeze.\n\nReference chi2:\n- example1, example2: 0.151, 0.152 -> 0 (the data vector is now the\n  model at their point);\n- the galaxy-only examples: 1.8e-14 to 2.9e-13, unchanged apart from the\n  last digits.\n\nREADME.md and tests/data_vector/README.md describe the new values.\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+  "project_commit_before_refreeze": "213b44c61541ac4249a81c97510be30e8d264888",
+  "endpoint_feature_core_commit": "f8a80548d3a0e26caa861cb6dec51022d8be03fb",
+  "installed_binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+  "source_identity_note": "The feature commit identifies the endpoint implementation. The binary hash identifies the exact executable used in these tests; later unrelated source commits are not a claim of a newer compiled binary.",
+  "nonlimber_zmax": 4.0,
+  "omp_threads": 6,
+  "blas_threads": 1,
+  "configuration_changes": [
+    {
+      "example": "example1",
+      "changes": [
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "lmax_nonlimber"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_lowrank_gg"
+          ],
+          null,
+          0
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_lowrank_lmax"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_lowrank_rank"
+          ],
+          null,
+          5
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_tolerance_gg"
+          ],
+          null,
+          0.002
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_tolerance_gs"
+          ],
+          null,
+          0.01
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_4x2pt_N",
+            "nonlimber_zmax"
+          ],
+          null,
+          4.0
+        ]
+      ],
+      "errors": [],
+      "live_parameter_changes_not_adopted": [
+        [
+          [
+            "omegam",
+            "prior",
+            "max"
+          ],
+          0.9,
+          0.5
+        ],
+        [
+          [
+            "omegam",
+            "prior",
+            "min"
+          ],
+          0.1,
+          0.2
+        ],
+        [
+          [
+            "w0pwa",
+            "prior",
+            "min"
+          ],
+          -5,
+          -3
+        ]
+      ],
+      "live_prior_changes_not_adopted": [
+        [
+          [],
+          null,
+          {
+            "amplitude_cut": "lambda As_1e9, DES_B1_1, DES_B1_2, DES_B1_3: 0.0 if (As_1e9/2.19)*max((DES_B1_1/1.42)**2, (DES_B1_2/1.66)**2, (DES_B1_3/1.7)**2) <= 8 else -np.inf"
+          }
+        ]
+      ],
+      "live_fixed_params_changes_not_adopted": []
+    },
+    {
+      "example": "example2",
+      "changes": [
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "lmax_nonlimber"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_lowrank_gg"
+          ],
+          null,
+          0
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_lowrank_lmax"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_lowrank_rank"
+          ],
+          null,
+          5
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_tolerance_gg"
+          ],
+          null,
+          0.002
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_tolerance_gs"
+          ],
+          null,
+          0.01
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_6x2pt_N",
+            "nonlimber_zmax"
+          ],
+          null,
+          4.0
+        ]
+      ],
+      "errors": [],
+      "live_parameter_changes_not_adopted": [
+        [
+          [
+            "omegam",
+            "prior",
+            "max"
+          ],
+          0.9,
+          0.5
+        ],
+        [
+          [
+            "omegam",
+            "prior",
+            "min"
+          ],
+          0.1,
+          0.2
+        ],
+        [
+          [
+            "w0pwa",
+            "prior",
+            "min"
+          ],
+          -5,
+          -3
+        ]
+      ],
+      "live_prior_changes_not_adopted": [
+        [
+          [],
+          null,
+          {
+            "amplitude_cut": "lambda As_1e9, DES_B1_1, DES_B1_2, DES_B1_3, DES_B1_4, DES_B1_5, DES_B1_6: 0.0 if (As_1e9/2.19)*max((DES_B1_1/1.42)**2, (DES_B1_2/1.66)**2, (DES_B1_3/1.7)**2, (DES_B1_4/1.62)**2, (DES_B1_5/1.78)**2, (DES_B1_6/1.75)**2) <= 8 else -np.inf"
+          }
+        ]
+      ],
+      "live_fixed_params_changes_not_adopted": []
+    },
+    {
+      "example": "example3",
+      "changes": [
+        [
+          [
+            "likelihood",
+            "des_cluster.cosmic_shear",
+            "lmax_nonlimber"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.cosmic_shear",
+            "nonlimber_tolerance_gg"
+          ],
+          null,
+          0.002
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.cosmic_shear",
+            "nonlimber_tolerance_gs"
+          ],
+          null,
+          0.01
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.cosmic_shear",
+            "nonlimber_zmax"
+          ],
+          null,
+          4.0
+        ]
+      ],
+      "errors": [],
+      "live_parameter_changes_not_adopted": [
+        [
+          [
+            "omegam",
+            "prior",
+            "max"
+          ],
+          0.9,
+          0.5
+        ],
+        [
+          [
+            "omegam",
+            "prior",
+            "min"
+          ],
+          0.1,
+          0.2
+        ],
+        [
+          [
+            "w0pwa",
+            "prior",
+            "min"
+          ],
+          -5,
+          -3
+        ]
+      ],
+      "live_prior_changes_not_adopted": [],
+      "live_fixed_params_changes_not_adopted": []
+    },
+    {
+      "example": "example4",
+      "changes": [
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "lmax_nonlimber"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_lowrank_gg"
+          ],
+          null,
+          0
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_lowrank_lmax"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_lowrank_rank"
+          ],
+          null,
+          5
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_tolerance_gg"
+          ],
+          null,
+          0.002
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_tolerance_gs"
+          ],
+          null,
+          0.01
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_3x2pt",
+            "nonlimber_zmax"
+          ],
+          null,
+          4.0
+        ]
+      ],
+      "errors": [],
+      "live_parameter_changes_not_adopted": [
+        [
+          [
+            "omegam",
+            "prior",
+            "max"
+          ],
+          0.9,
+          0.5
+        ],
+        [
+          [
+            "omegam",
+            "prior",
+            "min"
+          ],
+          0.1,
+          0.2
+        ],
+        [
+          [
+            "w0pwa",
+            "prior",
+            "min"
+          ],
+          -5,
+          -3
+        ]
+      ],
+      "live_prior_changes_not_adopted": [
+        [
+          [],
+          null,
+          {
+            "amplitude_cut": "lambda As_1e9, DES_B1_1, DES_B1_2, DES_B1_3, DES_B1_4, DES_B1_5: 0.0 if (As_1e9/2.1)*max((DES_B1_1/1.7)**2, (DES_B1_2/1.7)**2, (DES_B1_3/1.7)**2, (DES_B1_4/2.0)**2, (DES_B1_5/2.0)**2) <= 8 else -np.inf"
+          }
+        ]
+      ],
+      "live_fixed_params_changes_not_adopted": []
+    },
+    {
+      "example": "example4_2x2pt",
+      "changes": [
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "lmax_nonlimber"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_lowrank_gg"
+          ],
+          null,
+          0
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_lowrank_lmax"
+          ],
+          null,
+          150
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_lowrank_rank"
+          ],
+          null,
+          5
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_tolerance_gg"
+          ],
+          null,
+          0.002
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_tolerance_gs"
+          ],
+          null,
+          0.01
+        ],
+        [
+          [
+            "likelihood",
+            "des_cluster.combo_2x2pt",
+            "nonlimber_zmax"
+          ],
+          null,
+          4.0
+        ]
+      ],
+      "errors": [],
+      "live_parameter_changes_not_adopted": [
+        [
+          [
+            "omegam",
+            "prior",
+            "max"
+          ],
+          0.9,
+          0.5
+        ],
+        [
+          [
+            "omegam",
+            "prior",
+            "min"
+          ],
+          0.1,
+          0.2
+        ],
+        [
+          [
+            "w0pwa",
+            "prior",
+            "min"
+          ],
+          -5,
+          -3
+        ]
+      ],
+      "live_prior_changes_not_adopted": [
+        [
+          [],
+          null,
+          {
+            "amplitude_cut": "lambda As_1e9, DES_B1_1, DES_B1_2, DES_B1_3, DES_B1_4, DES_B1_5: 0.0 if (As_1e9/2.1)*max((DES_B1_1/1.7)**2, (DES_B1_2/1.7)**2, (DES_B1_3/1.7)**2, (DES_B1_4/2.0)**2, (DES_B1_5/2.0)**2) <= 8 else -np.inf"
+          }
+        ]
+      ],
+      "live_fixed_params_changes_not_adopted": []
+    }
+  ],
+  "endpoint_only_comparisons": [
+    {
+      "project": "des_cluster",
+      "example": "example1",
+      "tatt": false,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 480,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 120,
+          "changed": 0
+        },
+        {
+          "block": "cg",
+          "entries": 240,
+          "changed": 0
+        },
+        {
+          "block": "N",
+          "entries": 12,
+          "changed": 0
+        },
+        {
+          "block": "cc",
+          "entries": 600,
+          "changed": 0
+        },
+        {
+          "block": "cs",
+          "entries": 960,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example2",
+      "tatt": false,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 480,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 120,
+          "changed": 0
+        },
+        {
+          "block": "cg",
+          "entries": 240,
+          "changed": 0
+        },
+        {
+          "block": "N",
+          "entries": 12,
+          "changed": 0
+        },
+        {
+          "block": "cc",
+          "entries": 600,
+          "changed": 0
+        },
+        {
+          "block": "cs",
+          "entries": 960,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example3",
+      "tatt": false,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example3",
+      "tatt": true,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example4_2x2pt",
+      "tatt": false,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example4_2x2pt",
+      "tatt": true,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example4",
+      "tatt": false,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example4",
+      "tatt": false,
+      "all_limber": true,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    },
+    {
+      "project": "des_cluster",
+      "example": "example4",
+      "tatt": true,
+      "all_limber": false,
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed": 0
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed": 0
+        }
+      ],
+      "endpoint": 4.0,
+      "difference_chi2": 0.0,
+      "binary_sha256": "8945da0de4c888412e26ce301a5c0bf47526a98ca31d84702a6a89aae0a6a6c9",
+      "round_trip_exact": true
+    }
+  ],
+  "cumulative_serialized_vector_comparison": [
+    {
+      "file": "des_cluster_y6.datavector",
+      "before_sha256": "655558ddff7fa0d0f1a4a3b810835f5b020e0678b718160dd7dd52dd303fb7fd",
+      "after_sha256": "655558ddff7fa0d0f1a4a3b810835f5b020e0678b718160dd7dd52dd303fb7fd",
+      "file_bytes_identical": true,
+      "old_shape": [
+        2812,
+        2
+      ],
+      "new_shape": [
+        2812,
+        2
+      ],
+      "changed_numeric_entries_per_column": [
+        0,
+        0
+      ],
+      "changed_bit_entries_per_column": [
+        0,
+        0
+      ],
+      "changed_serialized_tokens_per_column": [
+        0,
+        0
+      ],
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "gs",
+          "entries": 480,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "gg",
+          "entries": 120,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "cg",
+          "entries": 240,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "N",
+          "entries": 12,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "cc",
+          "entries": 600,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        },
+        {
+          "block": "cs",
+          "entries": 960,
+          "changed_rows_any_numeric_column": 0,
+          "changed_rows_any_bit_column": 0,
+          "max_absolute_change": 0.0
+        }
+      ],
+      "status": "classified"
+    },
+    {
+      "file": "synthetic_des_y3.modelvector",
+      "before_sha256": "36cfcf0fabce4f21d0e9fd23f100572cf70c0928763cedf09c0225b74eac7a82",
+      "after_sha256": "d40d5fc4221dcf79b6e8258dc841464ed536c9fa068ed7180d27b1807294e43b",
+      "file_bytes_identical": false,
+      "old_shape": [
+        900,
+        2
+      ],
+      "new_shape": [
+        900,
+        2
+      ],
+      "changed_numeric_entries_per_column": [
+        0,
+        533
+      ],
+      "changed_bit_entries_per_column": [
+        0,
+        533
+      ],
+      "changed_serialized_tokens_per_column": [
+        0,
+        533
+      ],
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed_rows_any_numeric_column": 227,
+          "changed_rows_any_bit_column": 227,
+          "max_absolute_change": 5.246399999996759e-09
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed_rows_any_numeric_column": 252,
+          "changed_rows_any_bit_column": 252,
+          "max_absolute_change": 2.337960000000001e-07
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed_rows_any_numeric_column": 54,
+          "changed_rows_any_bit_column": 54,
+          "max_absolute_change": 3.05299999999592e-06
+        }
+      ],
+      "status": "classified"
+    },
+    {
+      "file": "tatt_des_y3.modelvector",
+      "before_sha256": "be9ed85c95fcec686429d744d996261f0f37e4a5f0a826405872dc8ae71382e6",
+      "after_sha256": "fc1b979c320ef2e96667022bb8de702e59bedc26bcfcaeae5a95f1f6e76b35d1",
+      "file_bytes_identical": false,
+      "old_shape": [
+        900,
+        2
+      ],
+      "new_shape": [
+        900,
+        2
+      ],
+      "changed_numeric_entries_per_column": [
+        0,
+        533
+      ],
+      "changed_bit_entries_per_column": [
+        0,
+        533
+      ],
+      "changed_serialized_tokens_per_column": [
+        0,
+        533
+      ],
+      "blocks": [
+        {
+          "block": "ss",
+          "entries": 400,
+          "changed_rows_any_numeric_column": 227,
+          "changed_rows_any_bit_column": 227,
+          "max_absolute_change": 5.246399999996759e-09
+        },
+        {
+          "block": "gs",
+          "entries": 400,
+          "changed_rows_any_numeric_column": 252,
+          "changed_rows_any_bit_column": 252,
+          "max_absolute_change": 2.337960000000001e-07
+        },
+        {
+          "block": "gg",
+          "entries": 100,
+          "changed_rows_any_numeric_column": 54,
+          "changed_rows_any_bit_column": 54,
+          "max_absolute_change": 3.05299999999592e-06
+        }
+      ],
+      "status": "classified"
+    }
+  ],
+  "interpretation": "The endpoint comparisons hold the binary, physical parameters and all other numerical controls fixed. Their cosmic shear and individually Limber blocks must be identical. Changes in those blocks in the separate old-reference comparison cannot be attributed to the endpoint. That comparison spans the older source history and any deliberately updated numerical settings.",
+  "attribution_limit": "This record measures each changed observable block. It does not assign cumulative historical differences to individual commits without an independent comparison.",
+  "validation": {
+    "full_run_xml_counts": {
+      "tests": 73,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "accepted_failures": [],
+    "retry_evidence": null,
+    "quick_tests_log_sha256": "cac3835293fc0de162836a3eecb634b087a75d2ce2acb6acfe3e9ac80e7a5fc6",
+    "reference_manifest_sha256": "6272592d61514458232ea06bb24a479a85eb7b6f86c76810109318d25c6d8b51"
+  },
+  "reference_chi2_before": {
+    "_meta": {
+      "chi2_tolerance": 0.2,
+      "generated_utc": "2026-11-04T21:24:42Z",
+      "omp_num_threads": "4"
+    },
+    "example1_nla": 0.0,
+    "example2_nla": 0.0,
+    "example3_nla": 1.7660254833971394e-14,
+    "example3_tatt": 1.826141983779063e-14,
+    "example4_2x2pt_nla": 2.6838066209360026e-13,
+    "example4_2x2pt_tatt": 2.491038008423829e-13,
+    "example4_nla": 2.8892955702084247e-13,
+    "example4_tatt": 2.7151900251233086e-13
+  },
+  "reference_chi2_after": {
+    "_meta": {
+      "chi2_tolerance": 0.2,
+      "generated_utc": "2026-11-19T06:38:58Z",
+      "omp_num_threads": "6"
+    },
+    "example1_nla": 1.0390264834404088e-05,
+    "example2_nla": 0.00022056552534465635,
+    "example3_nla": 2.082270442173514e-14,
+    "example3_tatt": 1.6834467849363416e-14,
+    "example4_2x2pt_nla": 2.0933895910000783e-13,
+    "example4_2x2pt_tatt": 1.9293700901586172e-13,
+    "example4_nla": 2.3363396158410916e-13,
+    "example4_tatt": 2.155824144396933e-13
+  }
+}

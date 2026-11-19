@@ -40,7 +40,7 @@ import os
 
 # OpenMP reads OMP_NUM_THREADS when the compiled libraries load: set it
 # before any cosmolike import (4 = the thread count of every test)
-os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import sys
 import tempfile

@@ -75,9 +75,9 @@ import os
 # environment variable OMP_NUM_THREADS when the compiled libraries
 # load, so this must run before ANY cobaya/cosmolike import in the
 # process. os.environ is this process's environment, which the
-# processes it starts inherit. 4 = cocoa_testing.REQUIRED_OMP_THREADS,
-# the thread count of every test process.
-os.environ["OMP_NUM_THREADS"] = "4"
+# processes it starts inherit. The default is four threads; an explicit
+# COCOA_TEST_OMP_THREADS override also reaches child test processes.
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import subprocess
 import sys
@@ -531,9 +531,11 @@ class TestNeutrinoCB(unittest.TestCase):
         # variance table records the count it was built with
         # (cosmo3D.c, sigma2_fields_build) and is rebuilt, with its
         # per-thread work buffers, when the count changes; the rebuilt
-        # values must equal the 4-thread ones exactly. The final 4
-        # restores the count build_state set
-        for threads in (1, 8, 4):
+        # values must equal the original parallel ones exactly. The final
+        # setting restores the count build_state used.
+        parallel_threads = int(os.environ.get("COCOA_TEST_OMP_THREADS", "8"))
+        original_threads = int(os.environ["OMP_NUM_THREADS"])
+        for threads in (1, parallel_threads, original_threads):
             ci.set_omp_threads(threads)
             np.testing.assert_array_equal(evaluate(ci)["sigma2"], cb["sigma2"])
 

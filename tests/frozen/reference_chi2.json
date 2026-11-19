@@ -1,15 +1,15 @@
 {
   "_meta": {
     "chi2_tolerance": 0.2,
-    "generated_utc": "2026-11-04T21:24:42Z",
-    "omp_num_threads": "4"
+    "generated_utc": "2026-11-19T06:38:58Z",
+    "omp_num_threads": "6"
   },
-  "example1_nla": 0.0,
-  "example2_nla": 0.0,
-  "example3_nla": 1.7660254833971394e-14,
-  "example3_tatt": 1.826141983779063e-14,
-  "example4_2x2pt_nla": 2.6838066209360026e-13,
-  "example4_2x2pt_tatt": 2.491038008423829e-13,
-  "example4_nla": 2.8892955702084247e-13,
-  "example4_tatt": 2.7151900251233086e-13
+  "example1_nla": 1.0390264834404088e-05,
+  "example2_nla": 0.00022056552534465635,
+  "example3_nla": 2.082270442173514e-14,
+  "example3_tatt": 1.6834467849363416e-14,
+  "example4_2x2pt_nla": 2.0933895910000783e-13,
+  "example4_2x2pt_tatt": 1.9293700901586172e-13,
+  "example4_nla": 2.3363396158410916e-13,
+  "example4_tatt": 2.155824144396933e-13
 }

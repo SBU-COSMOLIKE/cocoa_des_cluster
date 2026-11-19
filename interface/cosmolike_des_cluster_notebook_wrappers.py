@@ -77,6 +77,7 @@ from getdist import IniFile
 # folder, set by start_cocoa.sh
 sys.path.insert(0, os.environ["ROOTDIR"] + "/external_modules/code/cosmolike_core")
 import cosmolike_notebook_utils as cnu
+from cosmolike_notebook_utils.fisher import nonlimber_derivative_mode
 import cosmolike_des_cluster_interface as ci
 
 
@@ -187,6 +188,15 @@ COVERH0 = 2997.92458
 # where the dataset lives. Set them with configure() BEFORE
 # init_cosmolike: the init sequence reads them.
 _CONFIG = {
+    "nonlimber_accuracyboost": 1.0,
+    "nonlimber_lowrank_gg": 0,
+    "nonlimber_lowrank_rank": 5,
+    "nonlimber_lowrank_lmax": 150,
+    # Base early-exit tolerances; Fisher reads temporarily use zero.
+    "nonlimber_tolerance_gg": 0.002,
+    "nonlimber_tolerance_gs": 0.01,
+    # FKEM multipole cap, separate from the low-rank engine cap.
+    "lmax_nonlimber": 150,
     # Upper redshift, independent of sampling; matches this project YAML.
     "nonlimber_zmax": 4.0,
     "lmax": 75000,              # base of the internal C_ell tables
@@ -362,6 +372,16 @@ def init_cosmolike(CLprobe="6x2pt_N", with_data=False, lmax=None):
 
     ci.initial_setup()
     ci.init_nonlimber_zmax(zmax=float(_CONFIG["nonlimber_zmax"]))
+    ci.init_nonlimber_tolerance(
+        gg_tol=float(_CONFIG["nonlimber_tolerance_gg"]),
+        gs_tol=float(_CONFIG["nonlimber_tolerance_gs"]))
+    ci.init_lmax_nonlimber(lmax=int(_CONFIG["lmax_nonlimber"]))
+    ci.init_nonlimber_accuracy_boost(
+        nonlimber_boost=float(_CONFIG["nonlimber_accuracyboost"]))
+    ci.init_lowrank_nonlimber_gg(
+        flag=int(_CONFIG["nonlimber_lowrank_gg"]),
+        nrank=int(_CONFIG["nonlimber_lowrank_rank"]),
+        lmax=int(_CONFIG["nonlimber_lowrank_lmax"]))
     ci.reset_cluster()  # cluster defaults + fresh cluster cache keys
     ci.init_probes_cluster(possible_probes=CLprobe)
     ci.init_binning(_DATASET["ntheta"],
@@ -1118,6 +1138,50 @@ def get_datavector(**kwargs):
                 "vector uses the binning of the dataset")
     _state(**kwargs)
     return np.array(ci.compute_data_vector_cluster_masked())
+
+
+def get_fisher_datavector(param, AccuracyBoost=1.0):
+    """Return a joint vector for a two-parameter conditional Fisher example.
+
+    Only the primordial amplitude and matter density vary. All remaining
+    cosmology, galaxy nuisances, mass-richness parameters and selection
+    parameters stay at this module's fiducial values. Consequently a Fisher
+    matrix built from this function is conditional on those fixed values;
+    it is not a marginalized cluster-survey forecast.
+
+    Arguments:
+      param = shape (2,) array [10^9 A_s, Omega_m], both finite and positive.
+      AccuracyBoost = overall accuracy boost passed to get_datavector.
+
+    Returns:
+      1D float64 masked joint vector in the currently initialized probe layout.
+
+    Side effects:
+      Replaces cosmology and nuisance state. Disables the galaxy non-Limber
+      early exits during the read and restores their configured bases even
+      on error. The separate cluster projection tolerance has no Python
+      control, so it remains active and requires a separate convergence test.
+
+    Raises:
+      ValueError before state changes for a nonfinite, nonpositive or
+      incorrectly shaped parameter vector.
+    """
+    param = np.asarray(param, dtype=float)
+    if param.shape != (2,) or not np.all(np.isfinite(param)):
+        raise ValueError(
+            "param must contain two finite values [10^9 A_s, Omega_m]; "
+            "supply the conditional Fisher parameter vector")
+    if np.any(param <= 0.0):
+        raise ValueError(
+            "10^9 A_s and Omega_m must be positive; choose a physical "
+            "conditional Fisher point")
+    with nonlimber_derivative_mode(
+            interface=ci,
+            production_gg=_CONFIG["nonlimber_tolerance_gg"],
+            production_gs=_CONFIG["nonlimber_tolerance_gs"]):
+        return get_datavector(
+            As_1e9=float(param[0]), omegam=float(param[1]),
+            AccuracyBoost=AccuracyBoost)
 
 
 def get_chi2(**kwargs):

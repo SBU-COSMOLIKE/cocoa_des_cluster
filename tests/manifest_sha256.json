@@ -22,14 +22,14 @@
     "frozen/data/des_y6_maglim.nz": "e058a31cb355fbb1b8067266adedcdc96c8156f9d53dc1c57548609a3252a372",
     "frozen/data/des_y6_source.nz": "31d9d1c4b6d4cc4aead17f3238c389f5e90555e38555bade2a953350252b423b",
     "frozen/data/synthetic_des_y3.dataset": "c97c3517d53803fd2edeeccf026356b167042fede8e65134a9ac82f1c7dde27e",
-    "frozen/data/synthetic_des_y3.modelvector": "36cfcf0fabce4f21d0e9fd23f100572cf70c0928763cedf09c0225b74eac7a82",
+    "frozen/data/synthetic_des_y3.modelvector": "d40d5fc4221dcf79b6e8258dc841464ed536c9fa068ed7180d27b1807294e43b",
     "frozen/data/tatt_des_y3.dataset": "440ec8fbdc9eaaf125d9639bca2d679a5876f733475327d8f2ca4d6c8f38c69b",
-    "frozen/data/tatt_des_y3.modelvector": "be9ed85c95fcec686429d744d996261f0f37e4a5f0a826405872dc8ae71382e6",
-    "frozen/frozen_config_example1.py": "5734500b77965ee96365d58bc0ff25241e6069f2819fb857876485e43a4cd414",
-    "frozen/frozen_config_example2.py": "9e2dc868e2149eccc3d1bf11d4f752aec3e330abc63be52a336f051601385bc2",
-    "frozen/frozen_config_example3.py": "092dd7620a97c302171facf55c6352e39b0a9ac579abbfd87d3bd3c8d86b5b3a",
-    "frozen/frozen_config_example4.py": "85b1b008ea7c33c52ddee42e89425c917a9154b2cbbca8262077c06b2b8e37cb",
-    "frozen/frozen_config_example4_2x2pt.py": "90d5ded0f85129f7fe9b0bd135421fef6a6c638278b74b2ced4c7ccbe555e09d",
-    "frozen/reference_chi2.json": "5345d3bf5384db61e37e9b45660749f7580e53f374a3acd2c8dec3301f0e85f3"
+    "frozen/data/tatt_des_y3.modelvector": "fc1b979c320ef2e96667022bb8de702e59bedc26bcfcaeae5a95f1f6e76b35d1",
+    "frozen/frozen_config_example1.py": "869dec626b172118a6222855ad1a99ec8d5ae58d0e85dd1314f13ef56147d345",
+    "frozen/frozen_config_example2.py": "a4dc290785b06fb6fdceabda9dbad1fa6c6704efb11e04308ca9114ccc42b378",
+    "frozen/frozen_config_example3.py": "4f3ca011689be4408b6c9c0146dbca69776aa57fb90102c9da1ed20f9937d3c5",
+    "frozen/frozen_config_example4.py": "7d50ec772507c801ee11141ee6d843bd6c6c7b7d1f31c39d609343db1530c3b3",
+    "frozen/frozen_config_example4_2x2pt.py": "253651b74d5fdd221cff88091bf8e00de2986c73037e5774cdfcdc2441f7f69e",
+    "frozen/reference_chi2.json": "669deb9cd9c8f6dd21f8c3a1dcaaf278091a29116af4e665312940242ffb47e3"
   }
 }

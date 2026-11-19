@@ -50,8 +50,9 @@ start_cocoa.sh sourced):
 import os
 
 # OpenMP reads OMP_NUM_THREADS when the compiled libraries load: set it
-# before any cosmolike import (4 = the thread count of every test)
-os.environ["OMP_NUM_THREADS"] = "4"
+# before any cosmolike import. Four is the default; the environment
+# override applies to every process of this test.
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import sys
 import tempfile
@@ -153,8 +154,10 @@ class TestNonLimberCluster(unittest.TestCase):
                                        err_msg=f"{block} row {row}")
             self.assertGreater(ratio[-1], 0.0, f"{block} row {row}: no RSD boost")
 
-        # --- 4. THE SAME AT 1, 8 AND 4 THREADS ---
-        for threads in (1, 8, 4):
+        # --- 4. SERIAL, PARALLEL, AND RESTORED THREAD COUNT ---
+        parallel_threads = int(os.environ.get("COCOA_TEST_OMP_THREADS", "8"))
+        original_threads = int(os.environ["OMP_NUM_THREADS"])
+        for threads in (1, parallel_threads, original_threads):
             ci.set_omp_threads(threads)
             vector(ci, 1)  # back to Limber, so the next call refills
             dv = vector(ci, 0)

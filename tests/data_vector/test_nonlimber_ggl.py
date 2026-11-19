@@ -122,10 +122,10 @@ import os
 # (text settings that the processes it starts inherit). OpenMP, the
 # library that spreads cosmolike's C loops over CPU threads, reads
 # OMP_NUM_THREADS when the compiled libraries load, so this must run
-# before ANY cobaya/cosmolike import in the process. "4" is the
-# REQUIRED_OMP_THREADS of the harness: the thread count of the frozen
-# references and of the DCHI2_MEASURED record below.
-os.environ["OMP_NUM_THREADS"] = "4"
+# before any cobaya/cosmolike import in the process. The default is four;
+# COCOA_TEST_OMP_THREADS selects the same override in this test and the
+# reference generator. The measurement below used six workers.
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import sys
 import time
@@ -163,7 +163,7 @@ DCHI2_FLOOR = 1.0e-6
 
 # DCHI2_MEASURED = the delta chi2 this test prints, recorded on the
 # frozen state of tests/frozen (arm64 macOS on an Apple M2, clang,
-# default build, OMP_NUM_THREADS = 4); DCHI2_RTOL = the relative band
+# default build, OMP_NUM_THREADS = 6); DCHI2_RTOL = the relative band
 # assertion 4 allows around it (5%). delta is the difference of two
 # model vectors, so the value depends on the model (cosmology, n(z),
 # galaxy bias, intrinsic alignment, the non-Limber numerics) and on the
@@ -173,7 +173,7 @@ DCHI2_FLOOR = 1.0e-6
 # None switches assertion 4 off: the test then prints the value it
 # measures, and recording it here, with the platform, arms the
 # assertion.
-DCHI2_MEASURED = 0.012494
+DCHI2_MEASURED = 0.01247943395
 DCHI2_RTOL = 0.05
 
 

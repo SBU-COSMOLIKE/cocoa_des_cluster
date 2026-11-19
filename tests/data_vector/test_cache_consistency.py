@@ -137,7 +137,7 @@ import os
 # processes it starts inherit (the fresh-evaluation worker of
 # assertion 7 among them). 4 = cocoa_testing.REQUIRED_OMP_THREADS, the
 # thread count of every test process.
-os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import re
 import sys

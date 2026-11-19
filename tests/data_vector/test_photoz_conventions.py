@@ -98,7 +98,7 @@ import os
 # before ANY cobaya/cosmolike import in the process. "4" is the
 # REQUIRED_OMP_THREADS of the harness, the thread count of the frozen
 # references.
-os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OMP_NUM_THREADS"] = os.environ.get("COCOA_TEST_OMP_THREADS", "4")
 
 import shutil
 import sys
