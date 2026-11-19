@@ -983,7 +983,7 @@
     }
   ],
   "interpretation": "The endpoint comparisons hold the binary, physical parameters and all other numerical controls fixed. Their cosmic shear and individually Limber blocks must be identical. Changes in those blocks in the separate old-reference comparison cannot be attributed to the endpoint. That comparison spans the older source history and any deliberately updated numerical settings.",
-  "attribution_limit": "This record measures each changed observable block. It does not assign cumulative historical differences to individual commits without an independent comparison.",
+  "attribution_limit": "For the two generated galaxy-only vectors, stock Halofit tolerance 0.001 with growth_k = 0.05/Mpc restores all shear and galaxy-shear values exactly. Galaxy clustering retains a maximum difference 2.742999999985618e-7, which is not attributed to an individual historical commit. This diagnostic does not attribute the full 2,812-row cluster model difference. Production retains tolerance 1e-7 and growth_k = 0.05/Mpc; all original inputs and references remain unchanged by the comparison.",
   "validation": {
     "full_run_xml_counts": {
       "tests": 73,
@@ -1025,5 +1025,208 @@
     "example4_2x2pt_tatt": 1.9293700901586172e-13,
     "example4_nla": 2.3363396158410916e-13,
     "example4_tatt": 2.155824144396933e-13
+  },
+  "halofit_attribution": {
+    "study": "to_reproduce/refreeze_halofit_attribution_20261119",
+    "scope": "Generated galaxy-only NLA/TATT reference vectors at their preserved frozen points. The 2,812-row cluster joint vector and baryon-emulator vectors were not evaluated in this comparison.",
+    "result_record_sha256": "1356de5a29dc49a6af36318afb4353ce1ef66a72eba0a3f51579966edbddbc26",
+    "input_manifest_sha256": "e845d0ad4622f05521fe72f6f04b1bd0acae9a355f4ff35c3ff295c353d8618e",
+    "tolerance_only_diff_sha256": "ebc67eb9582cfb323854b6673798bc351829c072890133ef82958f2c0670a384",
+    "camb_source_commit": "6c978c716e163157c95191ee1c089e8b36c8adb9",
+    "installed_camblib_sha256": "95870be73431b52665681394ca72594df5d812cf5e6f0485bbdfc940f18343ca",
+    "private_build_sha256": {
+      "patched": "d9665b076690469a18629eb03b88d77d8452e6c08dca2edebe426d1aa35dd949",
+      "stock_tolerance": "2e25bc39641b4c91046f9c3ade8b6583cd60cc0e3c70935c3aa987c31b8d9fe7"
+    },
+    "private_patched_matches_installed_controls": 12,
+    "clean_patched_rebuild_bitwise_identical": true,
+    "stock_halofit_sigma_tolerance": 0.001,
+    "production_halofit_sigma_tolerance": 1e-07,
+    "production_growth_k_Mpc_inverse": 0.05,
+    "installed_runtime_unchanged": true,
+    "historical_camb_binary_known": false,
+    "provenance_limit": "The old reference records did not pin CAMB patch state or binary hashes. Exact recovery at these frozen points measures the effect of the specified controls; modification dates are not used to infer when the patch was first enabled.",
+    "cases": [
+      {
+        "project": "des_cluster",
+        "case": "example4_nla",
+        "comparisons": [
+          {
+            "growth_k_Mpc_inverse": 0.05,
+            "private_patched_matches_installed_bytes": true,
+            "linear_power_identical_stock_patched": true,
+            "max_relative_nonlinear_power_stock_patched": 0.002791324077779267,
+            "blocks": [
+              {
+                "block": "ss",
+                "patched_original_max": 5.246399999996759e-09,
+                "stock_original_max": 0.0,
+                "patched_original_count": 227,
+                "stock_original_count": 0,
+                "stock_to_patched_residual_l2_ratio": 0.0
+              },
+              {
+                "block": "gs",
+                "patched_original_max": 2.337960000000001e-07,
+                "stock_original_max": 0.0,
+                "patched_original_count": 252,
+                "stock_original_count": 0,
+                "stock_to_patched_residual_l2_ratio": 0.0
+              },
+              {
+                "block": "gg",
+                "patched_original_max": 3.05299999999592e-06,
+                "stock_original_max": 2.742999999985618e-07,
+                "patched_original_count": 54,
+                "stock_original_count": 54,
+                "stock_to_patched_residual_l2_ratio": 0.1500700852400761
+              }
+            ]
+          },
+          {
+            "growth_k_Mpc_inverse": 0.0005,
+            "private_patched_matches_installed_bytes": true,
+            "linear_power_identical_stock_patched": true,
+            "max_relative_nonlinear_power_stock_patched": 0.002791324077779267,
+            "blocks": [
+              {
+                "block": "ss",
+                "patched_original_max": 6.403700000003315e-09,
+                "stock_original_max": 1.8806600000005025e-09,
+                "patched_original_count": 227,
+                "stock_original_count": 227,
+                "stock_to_patched_residual_l2_ratio": 0.6477295217185819
+              },
+              {
+                "block": "gs",
+                "patched_original_max": 2.3713000000001377e-07,
+                "stock_original_max": 3.5358600000004524e-08,
+                "patched_original_count": 252,
+                "stock_original_count": 252,
+                "stock_to_patched_residual_l2_ratio": 0.2995502251145304
+              },
+              {
+                "block": "gg",
+                "patched_original_max": 6.221599999994831e-06,
+                "stock_original_max": 3.892199999994128e-06,
+                "patched_original_count": 54,
+                "stock_original_count": 54,
+                "stock_to_patched_residual_l2_ratio": 0.8685736890627662
+              }
+            ]
+          }
+        ],
+        "numerical_settings": {
+          "adopt_limber_gs": 1,
+          "adopt_limber_gg": 0,
+          "nonlimber_lowrank_gg": 0,
+          "nonlimber_lowrank_rank": 5,
+          "nonlimber_lowrank_lmax": 150,
+          "lmax_nonlimber": 150,
+          "nonlimber_zmax": 4.0,
+          "nonlimber_accuracyboost": 1.0,
+          "nonlimber_tolerance_gg": 0.002,
+          "nonlimber_tolerance_gs": 0.01,
+          "use_emulator": 0,
+          "external_nz_modeling": 0
+        },
+        "block_routes": {
+          "ss": "Limber shear route",
+          "gs": "explicit Limber: adopt_limber_gs=1",
+          "gg": "non-Limber enabled: adopt_limber_gg=0, FKEM, cap150"
+        },
+        "best_historical_control_growth_k_Mpc_inverse": 0.05
+      },
+      {
+        "project": "des_cluster",
+        "case": "example4_tatt",
+        "comparisons": [
+          {
+            "growth_k_Mpc_inverse": 0.05,
+            "private_patched_matches_installed_bytes": true,
+            "linear_power_identical_stock_patched": true,
+            "max_relative_nonlinear_power_stock_patched": 0.002791324077779267,
+            "blocks": [
+              {
+                "block": "ss",
+                "patched_original_max": 5.246399999996759e-09,
+                "stock_original_max": 0.0,
+                "patched_original_count": 227,
+                "stock_original_count": 0,
+                "stock_to_patched_residual_l2_ratio": 0.0
+              },
+              {
+                "block": "gs",
+                "patched_original_max": 2.337960000000001e-07,
+                "stock_original_max": 0.0,
+                "patched_original_count": 252,
+                "stock_original_count": 0,
+                "stock_to_patched_residual_l2_ratio": 0.0
+              },
+              {
+                "block": "gg",
+                "patched_original_max": 3.05299999999592e-06,
+                "stock_original_max": 2.742999999985618e-07,
+                "patched_original_count": 54,
+                "stock_original_count": 54,
+                "stock_to_patched_residual_l2_ratio": 0.1500700852400761
+              }
+            ]
+          },
+          {
+            "growth_k_Mpc_inverse": 0.0005,
+            "private_patched_matches_installed_bytes": true,
+            "linear_power_identical_stock_patched": true,
+            "max_relative_nonlinear_power_stock_patched": 0.002791324077779267,
+            "blocks": [
+              {
+                "block": "ss",
+                "patched_original_max": 6.2289999999993605e-09,
+                "stock_original_max": 1.467319999999939e-09,
+                "patched_original_count": 227,
+                "stock_original_count": 227,
+                "stock_to_patched_residual_l2_ratio": 0.5799897191263975
+              },
+              {
+                "block": "gs",
+                "patched_original_max": 2.3627300000002294e-07,
+                "stock_original_max": 2.7153899999994482e-08,
+                "patched_original_count": 252,
+                "stock_original_count": 252,
+                "stock_to_patched_residual_l2_ratio": 0.25529761617824104
+              },
+              {
+                "block": "gg",
+                "patched_original_max": 6.221599999994831e-06,
+                "stock_original_max": 3.892199999994128e-06,
+                "patched_original_count": 54,
+                "stock_original_count": 54,
+                "stock_to_patched_residual_l2_ratio": 0.8685736890627662
+              }
+            ]
+          }
+        ],
+        "numerical_settings": {
+          "adopt_limber_gs": 1,
+          "adopt_limber_gg": 0,
+          "nonlimber_lowrank_gg": 0,
+          "nonlimber_lowrank_rank": 5,
+          "nonlimber_lowrank_lmax": 150,
+          "lmax_nonlimber": 150,
+          "nonlimber_zmax": 4.0,
+          "nonlimber_accuracyboost": 1.0,
+          "nonlimber_tolerance_gg": 0.002,
+          "nonlimber_tolerance_gs": 0.01,
+          "use_emulator": 0,
+          "external_nz_modeling": 0
+        },
+        "block_routes": {
+          "ss": "Limber shear route",
+          "gs": "explicit Limber: adopt_limber_gs=1",
+          "gg": "non-Limber enabled: adopt_limber_gg=0, FKEM, cap150"
+        },
+        "best_historical_control_growth_k_Mpc_inverse": 0.05
+      }
+    ]
   }
 }
