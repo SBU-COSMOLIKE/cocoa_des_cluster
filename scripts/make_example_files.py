@@ -104,6 +104,23 @@ emul_cosmo = d_params[:d_params.index("  # -------------------------------------
 # EMUL2 theory block (the emulators of distances, r_drag and P(k)) without
 # the commented fastpt note that follows it in the donor
 emul_theory = d_theory[:d_theory.index("#  NOTE: under TATT")]
+# Cluster halos need linear cold power. Keep generated examples within
+# the validated LCDM domain of the explicit transfer-ratio approximation.
+for parameter in ("w", "w0pwa"):
+  emul_cosmo = re.sub(
+      r"(?m)^  " + parameter + r":\n.*?(?=^  \w)",
+      "  " + parameter + ":\n    value: -1.0\n",
+      emul_cosmo,
+      flags=re.S,
+  )
+emul_theory = emul_theory.replace(
+    "      use_syren: False",
+    "      cold_power: eisenstein_hu\n"
+    "      cold_neutrino_species: 1\n"
+    "      fixed_params: {mnu: 0.06}\n"
+    "      use_syren: False",
+)
+
 
 def nuisance_note(params_block):
   """Return the closing note of a des_cluster params block.
@@ -151,7 +168,7 @@ def evaluate_override(samp, emul):
   # the kept lines back together unchanged
   for line in samp.splitlines(keepends=True):
     # re.match tests the start of the line: indentation, then "mnu:"
-    if "Omega_nu h^2 = 0.00083" in line or re.match(r"\s+mnu:", line):
+    if "Omega_nu h^2 = 0.00083" in line or re.match(r"\s+(mnu|w|w0pwa):", line):
       continue
     out.append(line)
   return "".join(out)
@@ -406,7 +423,7 @@ PARTS = {}
 
 # Header comment of the sampling examples (build_sampling fixes w and w0pwa)
 LCDM_NOTE = """# Cosmology: LCDM as in the paper (w = -1, w0 + wa = -1 fixed). To sample
-# w0-wa, give `w` and `w0pwa` a prior as in the EVALUATE examples.
+# w0-wa, use CAMB; the EMUL2 cold-power conversion is validated for LCDM.
 """
 
 def build_sampling(n, emul, sampler_text, name):
