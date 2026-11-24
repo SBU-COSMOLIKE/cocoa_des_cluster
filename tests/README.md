@@ -143,3 +143,44 @@ An unqualified pytest run collects only `tests/data_vector`, and pytest never de
 Published timings are maintained in
 [Cocoa's main README](https://github.com/CosmoLike/cocoa#overview).
 [PORT_PLAN.md](../PORT_PLAN.md) retains the historical port measurements.
+
+## Matter-emulator support <a name="matter_emulator_support"></a>
+
+[check_matter_emulator_support.py](check_matter_emulator_support.py) asks the
+candidate Cobaya provider for the two matter fields required by this
+project: total matter (`delta_tot`) and cold matter (`delta_nonu`, baryons
+plus cold dark matter). It uses fixed neutrino mass 0.06 eV. This small
+check precedes any random-cosmology accuracy comparison, because replacing
+cold matter by total matter would change the physical model. The active
+cluster mass function reads the cold-matter variance. The existing EMUL2
+likelihood approximates its spectrum as $`P_{cb}=P_{\rm lin}/(1-f_\nu)^2`$,
+where $`f_\nu=\Omega_\nu/\Omega_m`$. This small-scale approximation cannot
+be counted as a separately supplied emulator prediction.
+
+**Step :one:**: select the candidate code checkout.
+
+```bash
+export EMULATOR_CODE_DIR=/path/to/emulators_code
+```
+
+**Step :two:**: select its model-data checkout.
+
+```bash
+export EMULATOR_DATA_DIR=/path/to/emulators_data_lcdm
+```
+
+**Step :three:**: run from activated Cocoa. This small support check
+uses one thread for each numerical library.
+
+```bash
+python projects/des_cluster/tests/check_matter_emulator_support.py
+```
+
+The result is written to `chains/matter_emulator_prior/support.txt`.
+Exit status 1 means a required field is unavailable; it does not describe
+an accuracy failure. The reviewed candidate supplies finite total-matter
+power but explicitly rejects cold-matter power. Therefore the ordinary
+projects' 50-point CAMB comparison cannot yet be applied to this likelihood
+unchanged: the current route would mix emulator error with the cold-power
+approximation. This check supplies no substitute spectrum and runs no maps,
+TreeCorr measurements or forecasts.
