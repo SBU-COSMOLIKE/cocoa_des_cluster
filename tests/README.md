@@ -177,10 +177,64 @@ python projects/des_cluster/tests/check_matter_emulator_support.py
 ```
 
 The result is written to `chains/matter_emulator_prior/support.txt`.
-Exit status 1 means a required field is unavailable; it does not describe
-an accuracy failure. The reviewed candidate supplies finite total-matter
-power but explicitly rejects cold-matter power. Therefore the ordinary
-projects' 50-point CAMB comparison cannot yet be applied to this likelihood
-unchanged: the current route would mix emulator error with the cold-power
-approximation. This check supplies no substitute spectrum and runs no maps,
-TreeCorr measurements or forecasts.
+The check explicitly enables `cold_power: eisenstein_hu`, using the project's
+number of massive species. It verifies the linear-field interface at fixed
+mass in flat LCDM. It does not establish the approximation's accuracy or
+supply nonlinear cold power. Exit status 1 reports a missing required field.
+
+## Cold-matter substitution error
+
+`compare_cold_total_power.py` isolates the error of using total power where
+the likelihood requests linear cold power. It uses CAMB in both runs,
+retains the actual neutrino density and all other model choices, and keeps
+the measurement covariance fixed. Each command starts a fresh process, so a
+cached native table cannot conceal a changed spectrum. The three points are
+the current first example's fiducial and two changes of Omega_m to 0.25 and
+0.40, all at mnu=0.06 eV. Other fiducial parameters stay fixed.
+
+Run from activated Cocoa, first with the true cold spectrum:
+
+```bash
+python projects/des_cluster/tests/compare_cold_total_power.py --mode exact --output projects/des_cluster/chains/cold_total_mnu006
+```
+
+Then replace only cold power with total power:
+
+```bash
+python projects/des_cluster/tests/compare_cold_total_power.py --mode total --output projects/des_cluster/chains/cold_total_mnu006
+```
+
+The saved vectors, spectrum ratios, configuration and native/source revisions
+remain under `chains/`. The reported distance is the prediction difference
+contracted with the covariance inverse, not the difference between two fits
+to the observed data. For a finite-simulation likelihood it remains a
+Gaussian covariance-distance diagnostic, not a change in that log-likelihood.
+
+The cluster test also isolates the constant correction already used by its
+EMUL2 route:
+
+```bash
+python projects/des_cluster/tests/compare_cold_total_power.py --mode rescaled --output projects/des_cluster/chains/cold_total_mnu006
+```
+
+Compare the scale-dependent Eisenstein-Hu ratio at the same neutrino mass:
+
+```bash
+python projects/des_cluster/tests/compare_cold_total_power.py --mode eh --output projects/des_cluster/chains/cold_total_mnu006
+```
+
+At the 24 November 2026 run, the 4x2pt+counts covariance distances were:
+
+| Omega_m | Total substituted | Constant correction | Eisenstein-Hu ratio |
+|---|---:|---:|---:|
+| 0.30 (fiducial) | 3.16992 | 0.007701 | 0.00002159 |
+| 0.25 | 1.72934 | 0.004175 | 0.00000497 |
+| 0.40 | 8.36589 | 0.027625 | 0.00015613 |
+
+The uncorrected fiducial counts decrease by 1.32--3.75% across retained bins
+(median 2.25%). The Eisenstein-Hu power residual is below 0.034% on the
+sampled grid, k=0.0001--10 1/Mpc and z=0--2. The corrected field approximation
+is therefore small in these tests; the neural-network error is additional.
+The tests do not bound errors across the whole prior or validate dynamical
+dark energy. The actual provider option and its field/state tests are
+explained in the emulator-code README.

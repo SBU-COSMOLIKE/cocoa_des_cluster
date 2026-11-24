@@ -1,20 +1,13 @@
-"""Check whether the candidate matter emulator supplies the cluster fields.
+"""Check total and approximate cold linear power from the Cobaya emulator.
 
-The DES cluster likelihood uses total-matter power (delta_tot) for lensing
-and cold-matter power (delta_nonu: baryons plus cold dark matter) for the
-halo mass function. Its current EMUL2 route approximates the cold spectrum
-as P_lin/(1-f_nu)^2. That changes the physical inputs, so the matched
-50-point comparison is blocked until the provider supplies cold power.
-This small Cobaya test asks the candidate provider for both fields at
-fixed mnu=0.06 eV, before an expensive random-cosmology comparison.
+The Eisenstein-Hu option supplies P_cb = P_mm (T_cb/T_cbnu)^2 for the
+same massive-neutrino cosmology. This small flat-LCDM, mnu=0.06 eV check
+verifies that the provider supplies both fields; it does not measure the
+approximation error. compare_cold_total_power.py measures that separately
+with CAMB and the project's likelihood.
 
-Run from activated Cocoa, using EMULATOR_CODE_DIR and EMULATOR_DATA_DIR to
-select the candidate code and model checkouts:
-    python projects/des_cluster/tests/check_matter_emulator_support.py
-
-The output goes under chains/matter_emulator_prior/. Exit status 1 means
-that the provider does not supply a required field; it is not an accuracy
-result and no substitute spectrum is introduced.
+Run from activated Cocoa; EMULATOR_CODE_DIR and EMULATOR_DATA_DIR may
+select candidate checkouts. Results go below chains/matter_emulator_prior.
 """
 
 import os
@@ -72,6 +65,8 @@ if __name__ == "__main__":
                     "nl_metadata_file": str(data / "emulmps/w0wa_mead2020/metadata.joblib"),
                     "param_order": ["As_1e9", "ns", "H0", "omegab", "omegam", "w", "wa"],
                     "fixed_params": {"mnu": 0.06},
+                    "cold_power": "eisenstein_hu",
+                    "cold_neutrino_species": 1,
                 },
             },
         },
@@ -83,7 +78,7 @@ if __name__ == "__main__":
         "Pk_interpolator": {
             "z": [0.0, 0.5, 1.0, 2.0],
             "k_max": 5.0,
-            "nonlinear": (False, True),
+            "nonlinear": False,
             "vars_pairs": [
                 ("delta_tot", "delta_tot"),
                 ("delta_nonu", "delta_nonu"),
