@@ -19,9 +19,10 @@ before removing that external prior from this test only.
 
 The optional --points argument reads explicit named-column parameter points.
 The default Fisher calculation varies the sampled cosmological and nuisance
-parameters for this project's full retained observable. --local-points adds
-an independently specified local sample to the plot. The E5 official test
-runs the driver with --advisory, retaining all accuracy outcomes.
+parameters for this project's full retained observable. The shared test
+then selects 25 points from its bounded Fisher distribution and evaluates
+both theories again. --local-points replaces that selection with a named
+parameter table. The E5 test uses --advisory and retains all outcomes.
 """
 
 import argparse
@@ -76,7 +77,7 @@ if __name__ == "__main__":
                         help="Report error sizes; fail only incomplete calculations")
     parser.add_argument("--local-points", type=Path,
                         default=None,
-                        help="Local comparison points overlaid when Fisher is enabled")
+                        help="Replace the default bounded-Fisher local points")
     args = parser.parse_args()
     if args.models < 1 or args.limit <= 0:
         parser.error("models and limit must be positive")
@@ -141,30 +142,6 @@ if __name__ == "__main__":
         fisher_sample_power=args.fisher_sample_power,
         points_file=points_file,
         advisory=args.advisory,
+        local_points_file=local_points,
     )
-    # Recompute local points with the same provider and likelihood routes.
-    # Their predictions have their own source/parameter records under local/.
-    if not args.no_fisher and points_file is None and local_points is not None:
-        output = output_dir
-        if output is None:
-            output = (project / "chains/matter_emulator_prior"
-                      / Path(args.configuration).stem / "with_fisher")
-        failed += run_matter_emulator_prior_check(
-            project=project,
-            configuration=args.configuration,
-            get_precision=ci.get_inv_cov_masked_cluster,
-            candidate_extra_args={"cold_power": "eisenstein_hu", "cold_neutrino_species": 1},
-            points_file=local_points,
-            output_dir=output / "local",
-            limit=args.limit,
-            advisory=args.advisory,
-        )
-        plot_matter_emulator_fisher(
-            output=output / "fisher",
-            points_file=output / "points.txt",
-            distances_file=output / "distances.txt",
-            project_name=project.name,
-            local_points_file=output / "local/points.txt",
-            local_distances_file=output / "local/distances.txt",
-        )
     sys.exit(1 if failed else 0)

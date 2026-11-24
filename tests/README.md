@@ -259,7 +259,12 @@ CAMB derivatives at two step sizes and marginalizes the sampled nuisance
 parameters with their Gaussian prior curvature and hard bounds. Its figure
 uses the approved error thresholds 0.2, 0.5 and 1, the project title and the
 3.5 amplitude cap. These contours describe a centered local forecast,
-not a fit to the observed posterior. Accuracy exceedances are recorded;
+not a fit to the observed posterior. The shared test also draws 25 local
+points from the bounded Fisher sample, evaluates CAMB and the emulator at
+those points, and overlays them as diamonds beside the broad-prior circles.
+Their separate predictions and errors are saved under `local/` within the
+same run directory. `--local-points` supplies a different named parameter
+table when an explicit study calls for one. Accuracy exceedances are recorded;
 incomplete numerical comparisons or a failed Fisher calculation fail E5.
 
 This test uses example 1's full cluster-plus-galaxy vector. It fixes
