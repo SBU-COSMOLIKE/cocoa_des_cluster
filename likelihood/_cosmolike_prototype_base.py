@@ -433,11 +433,10 @@ class _cosmolike_prototype_base(DataSetLikelihood):
         nrank=int(getattr(self, "nonlimber_lowrank_rank", 5)),
         lmax=int(getattr(self, "nonlimber_lowrank_lmax", 150)))
     # Halo statistics use cold dark matter + baryons. The emulator path
-    # has no separate cb spectrum and uses the documented small-scale ratio.
+    # reads the cold spectrum supplied by its theory block.
     if self.use_emulator == 2:
-      self.log.info("Halo P_cb uses P_lin/(1 - f_nu)^2 because the "
-                    "emulators have no cb spectrum (an approximation; "
-                    "see get_neutrino_inputs)")
+      self.log.info("Halo P_cb is read from the emulator theory provider; "
+                    "its cold-power approximation must be explicitly enabled.")
 
     if self.has_clusters and (self.use_emulator == 1):
       raise LoggedError(self.log, "probe %s: clusters have no emulator path",
@@ -687,8 +686,8 @@ class _cosmolike_prototype_base(DataSetLikelihood):
 
       Pk_interpolator: P(k, z) at the redshifts z_interp_2D_camb, up to
         k_max = kmax_boltzmann*accuracyboost [1/Mpc], linear and nonlinear,
-        for the field pairs in vars_pairs ("delta_tot" = total matter; with
-        CAMB also "delta_nonu" = cold dark matter + baryons, the field of
+        for the field pairs in vars_pairs ("delta_tot" = total matter; also
+        "delta_nonu" = cold dark matter + baryons, the field of
         the halo statistics);
       comoving_radial_distance: chi(z) [Mpc] at z_interp_1D;
       IA_PS, bias_PS: the Python FAST-PT tables (IA_code = 1);
@@ -753,7 +752,8 @@ class _cosmolike_prototype_base(DataSetLikelihood):
           "z": self.z_interp_2D_camb,
           "k_max": self.kmax_boltzmann * self.accuracyboost,
           "nonlinear": (True,False),
-          "vars_pairs": ([("delta_tot", "delta_tot")])
+          "vars_pairs": [("delta_tot", "delta_tot"),
+                         ("delta_nonu", "delta_nonu")]
         },
         "comoving_radial_distance": {
           "z": self.z_interp_1D
@@ -1043,14 +1043,11 @@ class _cosmolike_prototype_base(DataSetLikelihood):
       CAMB (use_emulator = 0): omegan2 is CAMB's omnuh2 and P_cb its
         ("delta_nonu", "delta_nonu") linear spectrum, read like P_lin
         (get_requirements asks for both).
-      emulators (use_emulator = 2): the emulators take no neutrino
-        parameter (they were trained at mnu = 0.06 eV) and have no cb
-        spectrum. omegan2 = mnu (3.046/3)^0.75/94.0708, the neutrino
-        density the yaml's omegach2 subtracts, and
-        P_cb = P_lin/(1 - f_nu)^2 with f_nu = omegan2/(omegam h^2): the
-        ratio of the two spectra far above the neutrino free-streaming
-        scale, an approximation on cluster scales. Its measured size is
-        in projects/des_cluster/README.md.
+      emulators (use_emulator = 2): omegan2 follows the same thermal
+        neutrino convention as the YAML. The theory supplies linear P_cb
+        through its explicit Eisenstein-Hu option at fixed mnu=0.06 eV.
+        That scale-dependent conversion is validated for flat LCDM; the
+        likelihood does not reconstruct or rescale the cold spectrum.
 
     Arguments:
       lnPL = ln P_lin [(Mpc/h)^3], flattened as set_cosmology's
@@ -1066,21 +1063,18 @@ class _cosmolike_prototype_base(DataSetLikelihood):
     else:
       omegan2 = self.provider.get_param("omnuh2")
 
-    if self.use_emulator == 2:
-      # P_cb/P_lin = 1/(1 - f_nu)^2 where the neutrinos no longer
-      # cluster (delta_m = (1 - f_nu) delta_cb)
-      f_nu = omegan2/(self.provider.get_param("omegam")*h*h)
-      lnPL_cb = lnPL - 2.0*np.log(1.0 - f_nu)
-    else:
-      # the same k extrapolation, (z, k) grid, flattening and units as
-      # lnPL in set_cosmo_related
-      PKL_cb = self.provider.get_Pk_interpolator(("delta_nonu", "delta_nonu"),
-                                                 nonlinear=False,
-                                                 extrap_kmin=1e-6,
-                                                 extrap_kmax=2.5e2*self.accuracyboost)
-      k_grid = np.power(10.0, self.log10k_interp_2D)
-      lnPL_cb = PKL_cb.logP(self.z_interp_2D, k_grid).flatten(order='F')
-      lnPL_cb = lnPL_cb + np.log(h**3)
+    # Read the provider's cold spectrum with exactly the same units and
+    # extrapolation as total power. CAMB supplies it directly; emulmps
+    # supplies its explicitly selected scale-dependent approximation.
+    PKL_cb = self.provider.get_Pk_interpolator(
+      var_pair=("delta_nonu", "delta_nonu"),
+      nonlinear=False,
+      extrap_kmin=1e-6,
+      extrap_kmax=2.5e2*self.accuracyboost,
+    )
+    k_grid = np.power(10.0, self.log10k_interp_2D)
+    lnPL_cb = PKL_cb.logP(self.z_interp_2D, k_grid).flatten(order='F')
+    lnPL_cb = lnPL_cb + np.log(h**3)
     return (omegan2, lnPL_cb)
 
   # ------------------------------------------------------------------------

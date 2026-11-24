@@ -750,7 +750,14 @@ The NFW truncation radius still defines an M200m halo relative to the total mean
 
 The shipped synthetic data and covariance were computed with this cb-variance calculation (regenerated on 2026-11-04), so the model reproduces the data vector at the fiducial point.
 
-The EMUL2 path has no separate cb spectrum and retains the approximation $P_{cb}=P_{lin}/(1-f_\nu)^2$, with $f_\nu=\Omega_\nu/\Omega_m$ and fixed neutrino mass 0.06 eV. This is the small-scale limit of the spectrum ratio; its counts error against a true cb-spectrum emulator has not been measured.
+The EMUL2 path requests linear `delta_nonu` power from the theory block,
+with `cold_power: eisenstein_hu` and `cold_neutrino_species: 1`. The theory
+rescales total power using the cold/total transfer ratio at the same mass.
+The current examples fix mnu=0.06 eV and flat LCDM, the validated domain
+of this conversion. The likelihood no longer applies the constant
+small-scale ratio. The [official comparison](tests/README.md#official-hybrid-emulator-test)
+measures the resulting total prediction error against CAMB; it includes the
+neural-network error as well as the cold-field approximation.
 
 Three more keys matter for the cluster combinations:
 

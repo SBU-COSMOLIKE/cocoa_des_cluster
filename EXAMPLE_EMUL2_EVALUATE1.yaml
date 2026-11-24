@@ -118,26 +118,11 @@ params:
       scale: 0.01
     proposal: 0.01
     latex: \Omega_\mathrm{m}
+  # The cold-power conversion is validated for flat LCDM.
   w0pwa:
-    prior:
-      min: -3 # w0 + wa > -3: below it the early phantom regime needs a costlier CAMB
-      max: -0.01
-    ref:
-      dist: norm
-      loc: -0.99
-      scale: 0.05
-    proposal: 0.05
-    latex: w_{0,\mathrm{DE}}+w_{a,\mathrm{DE}}
+    value: -1.0
   w:
-    prior:
-      min: -3
-      max: -0.01
-    ref:
-      dist: norm
-      loc: -0.99
-      scale: 0.05
-    proposal: 0.05
-    latex: w_{0,\mathrm{DE}}
+    value: -1.0
   wa:
     value: 'lambda w0pwa, w: w0pwa - w'
     derived: false
@@ -190,6 +175,10 @@ theory:
       metadata_file: "external_modules/data/emultrf/emulmps/npce_emul/metadata.joblib"
       nl_model_file:    "external_modules/data/emultrf/emulmps/w0wa_halofit/emulator_halofit.keras"
       nl_metadata_file: "external_modules/data/emultrf/emulmps/w0wa_halofit/metadata.joblib"
+      # Linear cold matter from the same massive-neutrino cosmology.
+      cold_power: eisenstein_hu
+      cold_neutrino_species: 1
+      fixed_params: {mnu: 0.06}
       use_syren: False
       param_order: ["As_1e9", "ns", "H0", "omegab", "omegam", 'w', 'wa']
 sampler:
@@ -202,8 +191,6 @@ sampler:
       H0: 69.0
       omegab: 0.048
       omegam: 0.3
-      w0pwa: -1.0
-      w: -1.0
       # sources: photo-z shift, shear calibration
       DES_DZ_S1: 0.034
       DES_DZ_S2: 0.028

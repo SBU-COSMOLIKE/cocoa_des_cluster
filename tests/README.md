@@ -238,3 +238,33 @@ is therefore small in these tests; the neural-network error is additional.
 The tests do not bound errors across the whole prior or validate dynamical
 dark energy. The actual provider option and its field/state tests are
 explained in the emulator-code README.
+
+## Official hybrid-emulator test
+
+The E5 test follows LSST Y1: fifty random cosmologies drawn from the
+numbered example, restricted to 0.2 < Omega_m < 0.5, fixed mnu=0.06 eV,
+and 10^9 A_s <= 3.5. Both routes use plain mead2020 and CAMB background
+quantities. The candidate supplies total power and approximate linear cold
+power through the explicit Eisenstein-Hu option. It uses the installed
+emulator code and data; environment overrides are the same as LSST Y1.
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector/test_emul2.py
+```
+
+Each invocation creates a separate `chains/hybrid_emulator_tests/` directory.
+The statistic is the direct vector difference contracted with the fixed
+precision, with no data-residual linear term. The Fisher calculation uses
+CAMB derivatives at two step sizes and marginalizes the sampled nuisance
+parameters with their Gaussian prior curvature and hard bounds. Its figure
+uses the approved error thresholds 0.2, 0.5 and 1, the project title and the
+3.5 amplitude cap. These contours describe a centered local forecast,
+not a fit to the observed posterior. Accuracy exceedances are recorded;
+incomplete numerical comparisons or a failed Fisher calculation fail E5.
+
+This test uses example 1's full cluster-plus-galaxy vector. It fixes
+w=-1 and w_a=0 because the cold-field conversion has only been validated
+for flat LCDM. It checks that the example's amplitude cut cannot reject
+any point in the capped parameter box before removing that redundant
+external prior from the saved test configuration. The production CAMB
+example retains its original dark-energy priors and amplitude cut.
