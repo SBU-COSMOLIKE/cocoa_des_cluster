@@ -1151,7 +1151,13 @@ def get_fisher_datavector(param, AccuracyBoost=1.0):
 
     Arguments:
       param = shape (2,) array [10^9 A_s, Omega_m], both finite and positive.
-      AccuracyBoost = overall accuracy boost passed to get_datavector.
+      AccuracyBoost = overall multiplier passed once to get_datavector.
+              The effective CosmoLike/input-table boost B is
+              _CONFIG["accuracyboost"]*AccuracyBoost. Native integration
+              accuracy is int(max(0, _CONFIG["integration_accuracy"] +
+              abs(3*(B - 1)))), and the multipole-table cap is
+              _CONFIG["lmax"] + 20000*(B - 1). CAMB receives
+              1 + (AccuracyBoost - 1)/3.
 
     Returns:
       1D float64 masked joint vector in the currently initialized probe layout.
