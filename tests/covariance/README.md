@@ -96,3 +96,13 @@ approximation, not the omitted discrete-halo terms or DES accuracy.
 The [data-vector tests](../data_vector/README.md) check likelihood signals
 and stored reference values separately. No stored covariance or reference
 value is replaced by this test.
+
+
+`test_footprint_inputs.py` checks the optional raw mask power, measured
+pair availability and redshift-dependent cluster-count area. Full-sky
+ordered pairs provide an analytic normalization check; antipodal caps
+check a disconnected footprint. Small physical forecasts compare count
+means, Poisson noise, SSC blocks, notebook/production bindings and archived
+input settings. Cases violating the count/two-point cross-window Cauchy
+bound must fail. These tests check implementation, not survey convergence
+or the accuracy of the assumed cross-window model.
