@@ -443,82 +443,37 @@ Run it alone with
 
 ## Hybrid-emulator accuracy test
 
-<!-- hybrid-emulator figure -->
-**Emulator training range**
+The CPL comparison is unavailable with the installed emulator. DES Cluster
+requires linear cold dark matter plus baryon power for its halo calculations.
+The installed Eisenstein–Hu cold-power provider accepts only flat ΛCDM
+with $w_0=-1$ and $w_a=0$. CAMB can evaluate CPL with the same survey
+likelihood.
 
-| Parameter | Range |
-| --- | --- |
-| Total matter density | $0.2<\Omega_m<0.5$ |
-| Primordial amplitude | $1<10^9 A_s\le 3.5$ |
-| Hubble constant | $H_0<85$ km/s/Mpc |
-| Present dark-energy equation of state in CPL | $w_0>-2$ |
-| Physical baryon density | $\Omega_b(H_0/100)^2<0.035$ |
+The archived ΛCDM comparison used one massive neutrino with
+$\sum m_\nu=0.06$ eV, CAMB `AccuracyBoost: 1.0`,
+`k_per_logint: 12` and `kmax: 10`, and the
+[saved ΛCDM benchmark and point tables](../fisher_reference/). Its
+[figure](figures/emulator_precision.png) and
+[Fisher diagnostics](../fisher_reference/reference.json) are preserved.
+The local archive contains the
+[broad counts](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125/summary.txt)
+and [focused counts](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125/local/summary.txt).
 
-The fixed tables intersect this range with the benchmark priors. CAMB uses
-one massive species with $\sum m_\nu=0.06$ eV. Both model routes evaluate
-the same 50 broad points (open symbols) and 25 focused points (filled symbols).
-The solid and dashed curves show the saved 68% and 95%
-nuisance-marginalized Fisher regions.
-
-CAMB uses `AccuracyBoost: 1.0`, `k_per_logint: 12` and `kmax: 10`. The saved
-Fisher contours are unreliable. The archived diagnostic found a maximum FoM
-shift of 37.36%.
-
-![DES Cluster hybrid-emulator error against CAMB](figures/emulator_precision.png)
-
-Counts use the thresholds 0.2, 0.5, 1 and 4 in that order.
-
-| Case | Broad below threshold (50) | Focused below threshold (25) | Nonfinite broad/focused |
-| --- | --- | --- | --- |
-| DES Cluster | 34/40/46/48 | 25/25/25/25 | 0/0 |
-
-<!-- end hybrid-emulator figure -->
-
-E5 reads the saved `benchmark.yaml` in [fisher_reference/](../fisher_reference/).
-The benchmark fixes the likelihood, data selection, sampled parameters,
-fiducial and normal numerical controls.
-
-The accuracy test evaluates CAMB and the candidate at the fixed
-[50 broad and 25 focused points](../fisher_reference/) and stores both
-vectors, the covariance-weighted error, and point status. Nuisance inputs are
-held at the evaluate fiducial. Missing CAMB predictions or a comparison
-with no valid vectors fails E5. The E5 adapter treats large prediction errors
-as advisory. The strict standalone command also checks the error threshold.
+The E5 adapter replays the archived ΛCDM inputs and treats large
+prediction errors as advisory. Run it from activated Cocoa.
 
 ```bash
 python -m pytest projects/des_cluster/tests/data_vector/test_emul2.py -k e5
-```
-
-To distribute the numerical comparisons across two MPI ranks with four
-OpenMP threads each, use the same driver directly from activated Cocoa.
-Keep BLAS at one thread and pass `--mpi` so the ranks own different points.
-
-```bash
-OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
-  projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
-```
-
-Saved Fisher contours show the bounded 68% and 95% regions of a centered
-CAMB forecast with nuisance parameters marginalized. The saved reference
-records the matrix, priors, fiducial, selection and numerical diagnostics.
-The accuracy run uses the available saved contour for display. Prediction
-errors remain valid when the saved contour is absent or marked unreliable. `--fisher-reference` selects a saved directory, and
-`--no-fisher` omits the display. Candidate networks can be changed using
-`EMULATOR_CODE_DIR` and `EMULATOR_DATA_DIR`.
-
-```bash
-python projects/des_cluster/tests/compare_emulator_camb.py --plot-only /path/to/run
 ```
 
 ## FoM convergence
 
 This test estimates how numerical settings affect the Fisher figure of merit
 (FoM), which is proportional to the inverse area of the marginalized
-parameter ellipse. The pair is $w_0,w_a$ for CPL and $10^9 A_s,\Omega_m$
-for ΛCDM. The test builds one full CAMB Fisher matrix at the benchmark
-settings. Fourth differences of its model vectors rank contributions from
-numerical noise.
+parameter ellipse. With the saved ΛCDM benchmark, the pair is
+$10^9 A_s,\Omega_m$. The test builds one full CAMB Fisher matrix at the
+benchmark settings. Fourth differences of its model vectors rank
+contributions from numerical noise.
 The higher-accuracy calculation reevaluates only the selected derivative
 columns. The estimate uses the same baseline Fisher weights at both settings.
 
