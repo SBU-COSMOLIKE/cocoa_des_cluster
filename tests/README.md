@@ -250,14 +250,21 @@ explained in the emulator-code README.
 ## Official hybrid-emulator test
 
 <!-- hybrid-emulator figure -->
-The test draws cosmologies with $w_0>-2$, $1<10^9 A_s\leq 3.5$, $H_0<85$ km/s/Mpc and $0.2<\Omega_m<0.5$, with $m_\nu=0.06$ eV.
-The numbered example supplies any tighter priors.
-The figure will appear here when the comparisons are available.
-The official test reads the model settings from [the fixed parameter tables](frozen/emulator_precision/). It evaluates CAMB and the emulator on the same ordered rows each time.
-The initial Fisher selected the focused coordinates; recomputing the contours leaves those coordinates fixed.
+The test uses the numbered example's priors and fixes $m_\nu=0.06$ eV. It draws cosmologies with $w_0>-2$, $1<10^9 A_s\leq 3.5$, $H_0<85$ km/s/Mpc, $0.2<\Omega_m<0.5$, and $\Omega_b(H_0/100)^2<0.035$.
+The open symbols show 50 broad draws. The filled symbols show 25 focused draws from the Fisher distribution under the same cuts.
+The solid and dashed curves enclose the 68% and 95% regions of the nuisance-marginalized Fisher forecast.
+The Fisher contours are unreliable. The maximum FoM shift was 37.36% against a 1% diagnostic target. The reported errors are measured directly at the saved points.
+The official test evaluates CAMB and the emulator on the same [fixed parameter tables](frozen/emulator_precision/) each time.
 
-After a later run completes the focused sample,
-copy its `fisher/emulator_fisher.png` to `tests/figures/emulator_precision.png` to refresh the published figure.
+![DES Cluster hybrid-emulator error against CAMB](figures/emulator_precision.png)
+
+Thresholds are 0.2, 0.5, 1 and 4. Failures are counted separately.
+
+| Case | Broad below threshold (50) | Focused below threshold (25) | Nonfinite broad/focused |
+| --- | --- | --- | --- |
+| DES Cluster | 33/41/46/48 | 25/25/25/25 | 0/0 |
+
+Copy a completed run's `fisher/emulator_fisher.png` to `tests/figures/emulator_precision.png` to refresh this figure.
 <!-- end hybrid-emulator figure -->
 
 The command-line driver can distribute independent cosmologies and Fisher
@@ -278,10 +285,8 @@ the serial driver twice would repeat work and write to the same files.
 one rank. Plot-only runs use rank zero and need no MPI launch.
 
 
-The E5 test follows LSST Y1: fifty random cosmologies drawn from the
-numbered example, restricted to 0.2 < Omega_m < 0.5, fixed mnu=0.06 eV,
-and 10^9 A_s <= 3.5. Both routes use plain mead2020 and CAMB background
-quantities. The candidate supplies total power and approximate linear cold
+The E5 test follows the LSST Y1 comparison. Both routes use plain mead2020
+and CAMB background quantities. The candidate supplies total power and approximate linear cold
 power through the explicit Eisenstein-Hu option. It uses the installed
 emulator code and data; environment overrides are the same as LSST Y1.
 
@@ -293,15 +298,10 @@ Each invocation creates a separate `chains/hybrid_emulator_tests/` directory.
 The statistic is the direct vector difference contracted with the fixed
 precision, with no data-residual linear term. The Fisher calculation uses
 CAMB derivatives at two step sizes and marginalizes the sampled nuisance
-parameters with their Gaussian prior curvature and hard bounds. Its figure
-uses the approved error thresholds 0.2, 0.5 and 1, the project title and the
-3.5 amplitude cap. These contours describe a centered local forecast,
-not a fit to the observed posterior. The shared test also selects 25 local
-cosmologies from the fully marginalized bounded Fisher sample. Both CAMB
-and emulator use fixed evaluate-1 nuisance values for these accuracy tests,
-as for the broad-prior comparisons. The resulting points appear as filled
-markers beside the open prior markers.
-Error bands have distinct colors and shapes; failed evaluations use crosses.
+parameters with their Gaussian prior curvature and hard bounds. The contours
+describe a centered local forecast. Both predictions use fixed evaluate-1
+nuisance values for all 75 cosmologies. The figure uses thresholds 0.2, 0.5,
+1, and 4. Error bands have distinct colors and shapes. Failed evaluations use crosses.
 Their separate predictions and errors are saved under `local/` within the
 same run directory. `--local-points` supplies a different named parameter
 table when an explicit study calls for one. Accuracy exceedances are recorded;
