@@ -468,22 +468,24 @@ python -m pytest projects/des_cluster/tests/data_vector/test_emul2.py -k e5
 
 ## FoM convergence
 
-This test estimates how numerical settings affect the Fisher figure of merit
-(FoM), which is proportional to the inverse area of the marginalized
-parameter ellipse. With the saved ΛCDM benchmark, the pair is
-$10^9 A_s,\Omega_m$. The test builds one full CAMB Fisher matrix at the
-benchmark settings. Fourth differences of its model vectors rank
-contributions from numerical noise.
-The higher-accuracy calculation reevaluates only the selected derivative
-columns. The estimate uses the same baseline Fisher weights at both settings.
+This CAMB test uses the ordinary accuracy and physical prescription of each
+benchmark to build one full local Fisher matrix. The figure of merit is
+$1/\sqrt{\det C_{w_0,w_a}}$, with nuisance parameters marginalized in the
+Gaussian approximation. The sampled pair $w_0,w_0+w_a$ has the same ellipse
+area. Gaussian prior curvature enters the Fisher matrix, and prior bounds
+limit the stencil positions.
 
-Each nonzero fiducial uses `h = 0.025 * abs(fiducial)`, capped as needed
-to keep both `±2h` stencil points within its prior. Zero-centered
-coordinates use their configured absolute step or one tenth of their proposal
-width. The output records the actual steps, numerical settings, measured and
-omitted columns, and the estimated FoM shift. Contributions from omitted
-columns remain unbounded, so the estimate measures sensitivity to the tested
-refinement.
+The five-point stencil uses a fixed 2.5% relative step, shortened near prior
+bounds. A zero-centered parameter uses its specified absolute step or one
+tenth of its proposal width. The fourth differences rank the numerical
+sensitivity of the columns. Both higher settings reevaluate the same selected
+columns and use the same full ordinary Fisher weights. Each estimate scales
+the ordinary FoM by the measured numerical correction. Contributions from
+omitted columns and correlated numerical errors remain unknown.
+
+CAMB supplies the cold-matter spectrum for [the numbered CPL evaluate](../../EXAMPLE_EVALUATE1.yaml).
+
+Numerical results are pending.
 
 Run from activated Cocoa with two MPI ranks, four OpenMP threads per rank
 and one BLAS thread.
@@ -493,6 +495,10 @@ OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
   projects/des_cluster/tests/check_fom_convergence.py --mpi
 ```
+
+The run directory contains `fisher/fom_accuracy.tsv`, the effective
+settings for each tier, and the measured and omitted columns. The standalone
+screen applies its 1% tolerance to the estimated refined-to-confirmation change.
 
 ## Appendix <a name="appendix"></a>
 
