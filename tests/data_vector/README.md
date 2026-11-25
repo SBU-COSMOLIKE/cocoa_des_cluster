@@ -490,6 +490,22 @@ the respective sums $\sum_j \delta d_j(C^{-1}\delta d)_j$ with the
 full joint precision, including cross-probe terms. Both draws lie within the
 common observed coordinate extrema of the two scalers.
 
+For these two draws, an isolated check replayed the CAMB prediction and
+replaced its linear cold spectrum by CAMB total power times the candidate's
+cold-to-total power ratio. The exact CAMB replay matched the saved vectors
+bit for bit. The cold-only distances were small compared with the full
+candidate distances.
+
+| Draw | Cold-only $E$ | Full $E$ |
+| --- | ---: | ---: |
+| Broad 41 | $2.65063\times10^{-3}$ | 90310.44 |
+| Focused 14 | $1.29808\times10^{-5}$ | 122.72 |
+
+The full distance includes the covariance cross term between the cold-only
+change and the remaining prediction change. It was $-24.7510$ for broad draw
+41 and $+0.01281$ for focused draw 14. The isolated check covers these two
+cosmologies. [Saved isolation results](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125-w0pwa_m0p4-w0wa/cold_isolation/isolation.tsv)
+
 <!-- end hybrid-emulator figure -->
 
 The [frozen CPL inputs](../fisher_reference/w0wa/) record both tables, numerical
