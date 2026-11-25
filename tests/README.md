@@ -124,6 +124,14 @@ An unqualified pytest run collects only `tests/data_vector`, and pytest never de
 
   [PORT_PLAN.md](../PORT_PLAN.md) records the result: every cluster quantity matches the reference to $2\times10^{-5}$ or better, except cluster lensing, which differs by $10^{-3}$ in the tail of the lowest source bins behind the highest cluster bin; on the cluster-lensing block this amounts to $\Delta\chi^2 = 3.4\times10^{-5}$ with the scale cuts and $2.0\times10^{-4}$ without them.
 
+The reference comparison returns a failure when a matched-input,
+matched-nuisance or production row misses its stated target, or when a
+thread/return-to-point check fails. Its JSON record is written first so the
+failure can be diagnosed. Comparisons deliberately using different physical
+assumptions remain advisory. The inexpensive
+`data_vector/test_validation_acceptance.py` checks this acceptance decision
+with mocked numerical tables; it does not replace the actual reference run.
+
 - `tests/validation/knob_sweep.py` measures the accuracy settings one at a time with the small scales visible. It reuses the cache of `compare_reference.py`:
 
       OMP_NUM_THREADS=4 python ./projects/des_cluster/tests/validation/knob_sweep.py \
@@ -241,6 +249,24 @@ explained in the emulator-code README.
 
 ## Official hybrid-emulator test
 
+The command-line driver can distribute independent cosmologies and Fisher
+columns over MPI, following the LSST Y1 × DESI Fisher calculation. For one
+project with two ranks and four OpenMP threads per rank, run:
+
+```bash
+mpirun -n 2 --bind-to none python -m mpi4py \
+  projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
+```
+
+Run one project at a time with this allocation. Each rank owns a separate
+model and evaluates different points or derivative columns. OpenMP works
+inside each evaluation; BLAS stays at one thread. Rank zero assembles and
+writes the combined results. The `--mpi` flag is required: simply launching
+the serial driver twice would repeat work and write to the same files.
+`python -m mpi4py` also stops the other ranks if an uncaught error terminates
+one rank. Plot-only runs use rank zero and need no MPI launch.
+
+
 The E5 test follows LSST Y1: fifty random cosmologies drawn from the
 numbered example, restricted to 0.2 < Omega_m < 0.5, fixed mnu=0.06 eV,
 and 10^9 A_s <= 3.5. Both routes use plain mead2020 and CAMB background
@@ -276,3 +302,9 @@ for flat LCDM. It checks that the example's amplitude cut cannot reject
 any point in the capped parameter box before removing that redundant
 external prior from the saved test configuration. The production CAMB
 example retains its original dark-energy priors and amplitude cut.
+
+The native accuracy-control regression also checks the historical signed
+integration controls in fresh processes. It accepts levels -1, 10 and 62,
+and rejects values outside the core's supported range. Level 10 in the
+high-accuracy advisory suite is intentional; this guard check does not
+establish convergence of a Fisher matrix or a survey covariance.

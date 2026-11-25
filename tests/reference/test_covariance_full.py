@@ -38,12 +38,12 @@ import os
 import subprocess
 import sys
 
-# Thread counts of OpenMP and of numpy's linear-algebra libraries: 3 unless
-# the caller set a value (setdefault keeps an existing one). This must run
-# before numpy is imported, since its BLAS reads them when it loads.
-for _var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
+# OpenMP owns the requested worker team. BLAS remains serial, as in the
+# production covariance calculation; these settings precede NumPy imports.
+os.environ.setdefault("OMP_NUM_THREADS", "3")
+for _var in ("OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS",
              "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
-    os.environ.setdefault(_var, "3")     # before numpy loads its BLAS
+    os.environ[_var] = "1"
 
 import numpy as np                                                    # noqa: E402
 import pytest

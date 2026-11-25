@@ -1556,6 +1556,11 @@ def run_validation(args, cfg, R, path, workdir):
     Returns:
       nothing; prints the tables, saves c_results_matched.npz in the cache
       folder and, with --json, writes every row to that file.
+
+    Raises:
+      RuntimeError after recording results if a required comparison or
+      thread/return-to-point invariant fails. Historical diagnostics with
+      deliberately different physical assumptions remain advisory.
     """
     from reference_cluster import FIDUCIAL
     print(f"[validation] reference (matched) {path}")
@@ -1617,8 +1622,26 @@ def run_validation(args, cfg, R, path, workdir):
     if args.json:
         with open(args.json, "w") as f:
             json.dump(out, f, indent=1, default=float)
+    # Preserve every diagnostic above before enforcing the numerical targets.
+    # Historical truncated-source and Lighthouse comparisons intentionally
+    # use different physics, so only matched inputs, matched nuisances and
+    # production inputs belong to this acceptance decision.
+    failures = []
+    for label in ("matched", "nuisance", "production"):
+        if label in out:
+            missed = [row["name"] for row in out[label]["rows"]
+                      if row["status"] == "MISS"]
+            if missed:
+                failures.append(label + ": " + ", ".join(missed))
+    # The last entry is a diagnostic floating-point distance; the other
+    # entries are the required Boolean thread and return-to-point checks.
+    for label, passed in out.get("determinism", {}).items():
+        if label != "max_abs_diff_omp1_omp8" and not passed:
+            failures.append("determinism: " + label)
     nmiss = sum(r["status"] == "MISS" for r in out["matched"]["rows"])
     print(f"\n[validation] matched: {len(out['matched']['rows'])} rows, {nmiss} outside target")
+    if failures:
+        raise RuntimeError("Cluster validation failed: " + "; ".join(failures))
 
 
 if __name__ == "__main__":
