@@ -443,31 +443,80 @@ Run it alone with
 
 ## Hybrid-emulator accuracy test
 
-The CPL comparison is unavailable with the installed emulator. DES Cluster
-requires linear cold dark matter plus baryon power for its halo calculations.
-The installed Eisenstein–Hu cold-power provider accepts only flat ΛCDM
-with $w_0=-1$ and $w_a=0$. CAMB can evaluate CPL with the same survey
-likelihood. The staged CPL inputs retain 50 broad cosmologies and 25
-focused cosmologies with $w_0+w_a<-0.4$. The focused draws use the saved
-ordinary CAMB Fisher matrix for the 889 retained 4×2pt+N rows.
-[Staged CPL benchmark](../fisher_reference/w0wa/)
+The synthetic DES Y6-like 4×2pt+N mask retains 889 rows. Cluster abundances use
+the linear cold-matter spectrum. For CPL, the candidate rescales Eisenstein–Hu
+growth by the square root of the ratio of linear power in the CPL cosmology to
+its matched ΛCDM cosmology at $k=0.05\,\mathrm{Mpc}^{-1}$.
 
-The archived ΛCDM comparison used one massive neutrino with
-$\sum m_\nu=0.06$ eV, CAMB `AccuracyBoost: 1.0`,
-`k_per_logint: 12` and `kmax: 10`, and the
-[saved ΛCDM benchmark and point tables](../fisher_reference/). Its
-[figure](figures/emulator_precision.png) and
-[Fisher diagnostics](../fisher_reference/reference.json) are preserved.
-The local archive contains the
-[broad counts](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125/summary.txt)
-and [focused counts](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125/local/summary.txt).
+<!-- hybrid-emulator figure -->
+**Emulator training range**
 
-The E5 adapter replays the archived ΛCDM inputs and treats large
-prediction errors as advisory. Run it from activated Cocoa.
+| Parameter | Range |
+| --- | --- |
+| Total matter density | $0.2<\Omega_m<0.5$ |
+| Primordial amplitude | $1<10^9 A_s\le 3.5$ |
+| Hubble constant | $H_0<85$ km/s/Mpc |
+| Present dark-energy equation of state | $w_0>-2$ |
+| Early-time dark-energy equation of state | $w_0+w_a<-0.4$ |
+| Physical baryon density | $\Omega_b(H_0/100)^2<0.035$ |
+
+The fixed model tables intersect these limits with the project priors.
+2/50 broad and 1/25 focused points extend beyond the common observed
+$n_s$ extrema of the two installed scalers. These are coordinate bounds.
+
+CAMB uses one massive neutrino at 0.06 eV, `AccuracyBoost: 1.0`,
+`k_per_logint: 12` and `kmax: 10`.
+Both samples use the benchmark nuisance fiducial.
+
+The comparison scores the squared prediction difference with the joint data
+precision, $E=(d_{\rm emul}-d_{\rm CAMB})^\mathsf{T}C^{-1}(d_{\rm emul}-d_{\rm CAMB})$.
+The plot shows 50 broad draws as open symbols and 25 focused draws as filled
+symbols. Solid and dashed curves enclose 68% and 95% of the saved bounded,
+nuisance-marginalized Fisher distribution.
+
+![DES Cluster - 4×2pt+N](figures/emulator_precision_w0wa.png)
+
+Counts use the strict thresholds 0.2, 0.5, 1 and 4 in that order.
+
+| Case | Broad below threshold (50) | Focused below threshold (25) | Nonfinite broad/focused |
+| --- | --- | --- | --- |
+| 4×2pt+N | 25/32/38/43 | 23/24/24/24 | 0/0 |
+
+Both samples contain large finite errors. The broad maximum is $E=90310.44$
+at broad draw 41 ($w_0=-1.665$, $w_a=1.023$, $\Omega_m=0.446$). The focused
+maximum is $E=122.72$ at focused draw 14 ($w_0=-1.284$, $w_a=0.844$,
+$\Omega_m=0.309$). The count rows contribute 97.9% and 91.3% to
+the respective sums $\sum_j \delta d_j(C^{-1}\delta d)_j$ with the
+full joint precision, including cross-probe terms. Both draws lie within the
+common observed coordinate extrema of the two scalers.
+
+<!-- end hybrid-emulator figure -->
+
+The [frozen CPL inputs](../fisher_reference/w0wa/) record both tables, numerical
+settings, mask, priors and ordinary CAMB Fisher geometry. The local run keeps
+[broad results](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125-w0pwa_m0p4-w0wa/summary.txt) and [focused results](../../chains/hybrid_emulator_tests/ordinary_accuracy_2x4_20261125-w0pwa_m0p4-w0wa/local/summary.txt),
+including the input settings and both model vectors.
+
+E5 treats large prediction errors as advisory. Missing CAMB predictions or
+absence of any valid candidate comparison fail the test. Run from activated
+Cocoa.
 
 ```bash
 python -m pytest projects/des_cluster/tests/data_vector/test_emul2.py -k e5
 ```
+
+Use the same comparison driver for MPI, assigning two ranks and four
+OpenMP threads per rank with BLAS at one thread.
+
+```bash
+OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
+  projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
+```
+
+Use `--plot-only /path/to/run` to redraw a completed result. The
+[archived ΛCDM figure](figures/emulator_precision.png) and
+[its benchmark inputs](../fisher_reference/) describe the earlier experiment.
 
 ## FoM convergence
 
