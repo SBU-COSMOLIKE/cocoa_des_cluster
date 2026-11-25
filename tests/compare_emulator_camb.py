@@ -1,4 +1,4 @@
-"""Compare the candidate matter emulator with CAMB at random des_cluster cosmologies.
+"""Compare the candidate matter emulator with CAMB on the fixed CPL benchmark.
 
 Run from activated Cocoa (one project at a time):
     python projects/des_cluster/tests/compare_emulator_camb.py
@@ -8,18 +8,16 @@ Run from activated Cocoa (one project at a time):
 MPI assigns independent parameter points or Fisher columns to each rank;
 OpenMP accelerates each rank's model evaluations. Keep BLAS at one thread.
 
-The shared Cocoa test uses the numbered example's cosmological priors,
-restricted to 0.2 < Omega_m < 0.5 and Omega_b*(H0/100)^2 < 0.035, with
-mnu fixed at 0.06 eV. Nuisance parameters stay at the example point.
-Both calculations use plain mead2020 and CAMB background distances.
+The shared Cocoa test replays the saved broad and focused parameter
+tables with one massive neutrino at 0.06 eV. Both routes use the same
+nuisance values, plain mead2020 and CAMB background distances.
 
 Use EMULATOR_CODE_DIR and EMULATOR_DATA_DIR to select candidate checkouts.
 COCOA_TEST_INTERFACE_DIR optionally selects an independently built native
 interface. Results, including failed points, go under chains/.
 
-The cluster test fixes w=-1 and wa=0 for the validated cold-power fit.
-It verifies that the amplitude cut is redundant over the full prior box
-before removing that external prior from this test only.
+For a custom configuration, the cluster test verifies that the amplitude
+cut is redundant over the full prior box before removing it.
 
 The normal command compares fixed broad and focused cosmologies and uses a
 saved Fisher reference for the contour when available. The vector test is
@@ -93,6 +91,8 @@ def main(*, fisher=False):
                         help="Distribute points and Fisher columns across MPI ranks")
     args = parser.parse_args()
     benchmark = project / "tests/fisher_reference"
+    if not fisher:
+        benchmark /= "w0wa"
     benchmark_yaml = benchmark / "benchmark.yaml"
     if args.configuration is None:
         source = project / "EXAMPLE_EVALUATE1.yaml" if fisher else benchmark_yaml
@@ -163,16 +163,10 @@ def main(*, fisher=False):
         del priors["amplitude_cut"]
         if not priors:
             del info["prior"]
-        if not fisher:
-            # The candidate cold-power fit is validated in flat ΛCDM.
-            # The CAMB-only Fisher keeps the source's sampled dark energy.
-            for parameter in ("w", "w0pwa"):
-                info["params"][parameter] = {"value": -1.0}
-                info["sampler"]["evaluate"]["override"].pop(parameter, None)
         if output_dir is None:
             kind = "fisher_calibration" if fisher else "comparison"
             output_dir = project / "chains/matter_emulator_prior" / Path(args.configuration).stem / kind
-        filename = "fom_configuration.yaml" if fisher else "lcdm_configuration.yaml"
+        filename = "fom_configuration.yaml" if fisher else "comparison_configuration.yaml"
         configuration = output_dir / filename
         if mpi_comm is None or mpi_comm.Get_rank() == 0:
             output_dir.mkdir(parents=True, exist_ok=True)

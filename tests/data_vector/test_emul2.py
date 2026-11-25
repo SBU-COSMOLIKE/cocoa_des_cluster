@@ -61,7 +61,7 @@ class TestHybridEmulator(unittest.TestCase):
         environment["MKL_NUM_THREADS"] = "1"
         environment["VECLIB_MAXIMUM_THREADS"] = "1"
         print("E5 hybrid emulator vector accuracy:", output, flush=True)
-        frozen = project / "tests/fisher_reference"
+        frozen = project / "tests/fisher_reference/w0wa"
         prior = frozen / "prior_50.txt"
         focused = frozen / "focused_25.txt"
         # A missing row changes the denominator even when CAMB itself succeeds.
