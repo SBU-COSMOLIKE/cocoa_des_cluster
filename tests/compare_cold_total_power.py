@@ -85,14 +85,13 @@ if __name__ == "__main__":
     # The exact same physical calculation feeds both routes. Refining
     # CAMB avoids confusing a spectrum-computation error with this test.
     camb = info["theory"]["camb"]["extra_args"]
-    camb["AccuracyBoost"] = 3.0
-    camb["k_per_logint"] = 50
     name = next(iter(info["likelihood"]))
     info["likelihood"][name]["print_datavector"] = False
     configuration = yaml_dump(info)
     if args.mode != "exact":
         assert configuration == (output / "exact_configuration.yaml").read_text()
     (output / (args.mode + "_configuration.yaml")).write_text(configuration)
+    print(f"Effective CAMB settings: {camb}", flush=True)
     points = [fiducial, dict(fiducial, omegam=0.25), dict(fiducial, omegam=0.40)]
     np.savetxt(output / "points.txt", [[p[k] for k in fiducial] for p in points],
                header=" ".join(fiducial))

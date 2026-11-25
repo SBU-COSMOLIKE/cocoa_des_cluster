@@ -267,55 +267,63 @@ Thresholds are 0.2, 0.5, 1 and 4. Failures are counted separately.
 Copy a completed run's `fisher/emulator_fisher.png` to `tests/figures/emulator_precision.png` to refresh this figure.
 <!-- end hybrid-emulator figure -->
 
-The command-line driver can distribute independent cosmologies and Fisher
-columns over MPI, following the LSST Y1 × DESI Fisher calculation. For one
-project with two ranks and four OpenMP threads per rank, run:
+E5 reads the saved `benchmark.yaml` in [fisher_reference/](fisher_reference/).
+The benchmark fixes the likelihood, data selection, sampled parameters,
+fiducial and normal numerical controls. The figures above record earlier
+runs with the CAMB mean controls used at that time.
+
+The accuracy test evaluates CAMB and the candidate at the fixed
+[50 broad and 25 focused points](fisher_reference/) and stores both
+vectors, the covariance-weighted error, and point status. Nuisance inputs are
+held at the evaluate fiducial. Missing CAMB predictions or a comparison
+with no valid vectors fails E5. The E5 adapter treats large prediction errors
+as advisory. The strict standalone command also checks the error threshold.
 
 ```bash
-mpirun -n 2 --bind-to none python -m mpi4py \
+python -m pytest projects/des_cluster/tests/data_vector/test_emul2.py -k e5
+```
+
+To distribute the numerical comparisons across two MPI ranks with four
+OpenMP threads each, use the same driver directly from activated Cocoa.
+Keep BLAS at one thread and pass `--mpi` so the ranks own different points.
+
+```bash
+OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
   projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
 ```
 
-Run one project at a time with this allocation. Each rank owns a separate
-model and evaluates different points or derivative columns. OpenMP works
-inside each evaluation; BLAS stays at one thread. Rank zero assembles and
-writes the combined results. The `--mpi` flag is required: simply launching
-the serial driver twice would repeat work and write to the same files.
-`python -m mpi4py` also stops the other ranks if an uncaught error terminates
-one rank. Plot-only runs use rank zero and need no MPI launch.
-
-
-The E5 test follows the LSST Y1 comparison. Both routes use plain mead2020
-and CAMB background quantities. The candidate supplies total power and approximate linear cold
-power through the explicit Eisenstein-Hu option. It uses the installed
-emulator code and data; environment overrides are the same as LSST Y1.
+Saved Fisher contours show the bounded 68% and 95% regions of a centered
+CAMB forecast with nuisance parameters marginalized. The saved reference
+records the matrix, priors, fiducial, selection and numerical diagnostics.
+The accuracy run uses the available saved contour for display. Prediction
+errors remain valid when the saved contour is absent or marked unreliable. `--fisher-reference` selects a saved directory, and
+`--no-fisher` omits the display. Candidate networks can be changed using
+`EMULATOR_CODE_DIR` and `EMULATOR_DATA_DIR`.
 
 ```bash
-python -m pytest -s projects/des_cluster/tests/data_vector/test_emul2.py
+python projects/des_cluster/tests/compare_emulator_camb.py --plot-only /path/to/run
 ```
 
-Each invocation creates a separate `chains/hybrid_emulator_tests/` directory.
-The statistic is the direct vector difference contracted with the fixed
-precision, with no data-residual linear term. The Fisher calculation uses
-CAMB derivatives at two step sizes and marginalizes the sampled nuisance
-parameters with their Gaussian prior curvature and hard bounds. The contours
-describe a centered local forecast. Both predictions use fixed evaluate-1
-nuisance values for all 75 cosmologies. The figure uses thresholds 0.2, 0.5,
-1, and 4. Error bands have distinct colors and shapes. Failed evaluations use crosses.
-Their separate predictions and errors are saved under `local/` within the
-same run directory. `--local-points` supplies a different named parameter
-table when an explicit study calls for one. Accuracy exceedances are recorded;
-incomplete numerical comparisons or a failed Fisher calculation fail E5.
+### Separate FoM screen
 
-This test uses example 1's full cluster-plus-galaxy vector. It fixes
-w=-1 and w_a=0 because the cold-field conversion has only been validated
-for flat LCDM. It checks that the example's amplitude cut cannot reject
-any point in the capped parameter box before removing that redundant
-external prior from the saved test configuration. The production CAMB
-example retains its original dark-energy priors and amplitude cut.
+```bash
+OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
+  projects/des_cluster/tests/check_fom_convergence.py --mpi
+```
 
-The native accuracy-control regression also checks the historical signed
-integration controls in fresh processes. It accepts levels -1, 10 and 62,
-and rejects values outside the core's supported range. Level 10 in the
-high-accuracy advisory suite is intentional; this guard check does not
-establish convergence of a Fisher matrix or a survey covariance.
+The FoM screen builds the full CAMB baseline once. Each nonzero coordinate
+uses `h = 0.025 * abs(fiducial)`, capped when needed to keep both
+`±2h` stencil points within the prior. Zero-centered coordinates use
+their configured absolute step, or one tenth of their proposal width.
+The archive records every actual step. Fourth differences at that one
+spacing rank the numerical noise contributions. Only the selected
+columns run at higher accuracy; the output records the omitted columns
+and the estimated FoM shift. This command is independent of E5.
+
+Use `--save-fisher-contours` to explicitly integrate and store a bounded
+contour for later accuracy plots. The calculation writes the reference to
+`reference/` under its output directory. `--validate-fisher-steps` opts
+into the more expensive full comparison at two stencil spacings and multiple
+accuracy settings.
