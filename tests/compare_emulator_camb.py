@@ -95,7 +95,8 @@ def main(*, fisher=False):
     benchmark = project / "tests/fisher_reference"
     benchmark_yaml = benchmark / "benchmark.yaml"
     if args.configuration is None:
-        args.configuration = str(benchmark_yaml)
+        source = project / "EXAMPLE_EVALUATE1.yaml" if fisher else benchmark_yaml
+        args.configuration = str(source)
     standard_configuration = (project / args.configuration).resolve() == benchmark_yaml
     # Each rank owns its Cobaya model and native state. The shared test
     # distributes different jobs and lets rank zero write combined results.
@@ -142,9 +143,7 @@ def main(*, fisher=False):
     os.chdir(root)
     configuration = project / args.configuration
     if not standard_configuration:
-        # The cold-field fit is validated for LCDM. Keep the numbered source
-        # example intact and save the exact fixed-dark-energy test input in
-        # chains/. Its amplitude cut is redundant over this capped prior box:
+        # The amplitude cut is redundant over this capped prior box:
         # even As=max and all lens biases=max stay below its boundary.
         from cobaya.input import update_info
         from cobaya.yaml import yaml_load_file, yaml_dump
@@ -164,13 +163,17 @@ def main(*, fisher=False):
         del priors["amplitude_cut"]
         if not priors:
             del info["prior"]
-        for parameter in ("w", "w0pwa"):
-            info["params"][parameter] = {"value": -1.0}
-            info["sampler"]["evaluate"]["override"].pop(parameter, None)
+        if not fisher:
+            # The candidate cold-power fit is validated in flat ΛCDM.
+            # The CAMB-only Fisher keeps the source's sampled dark energy.
+            for parameter in ("w", "w0pwa"):
+                info["params"][parameter] = {"value": -1.0}
+                info["sampler"]["evaluate"]["override"].pop(parameter, None)
         if output_dir is None:
             kind = "fisher_calibration" if fisher else "comparison"
             output_dir = project / "chains/matter_emulator_prior" / Path(args.configuration).stem / kind
-        configuration = output_dir / "lcdm_configuration.yaml"
+        filename = "fom_configuration.yaml" if fisher else "lcdm_configuration.yaml"
+        configuration = output_dir / filename
         if mpi_comm is None or mpi_comm.Get_rank() == 0:
             output_dir.mkdir(parents=True, exist_ok=True)
             configuration.write_text(yaml_dump(info))
