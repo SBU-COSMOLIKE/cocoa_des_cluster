@@ -250,27 +250,31 @@ explained in the emulator-code README.
 ## Official hybrid-emulator test
 
 <!-- hybrid-emulator figure -->
-The test uses the numbered example's priors and fixes $m_\nu=0.06$ eV. It draws cosmologies with $w_0>-2$, $1<10^9 A_s\leq 3.5$, $H_0<85$ km/s/Mpc, $0.2<\Omega_m<0.5$, and $\Omega_b(H_0/100)^2<0.035$.
-The open symbols show 50 broad draws. The filled symbols show 25 focused draws from the Fisher distribution under the same cuts.
-The solid and dashed curves enclose the 68% and 95% regions of the nuisance-marginalized Fisher forecast.
-The Fisher contours are unreliable. The maximum FoM shift was 37.36% against a 1% diagnostic target. The reported errors are measured directly at the saved points.
-The official test evaluates CAMB and the emulator on the same [fixed parameter tables](frozen/emulator_precision/) each time.
+The CAMB reference uses the saved benchmark's standard numerical controls and one
+massive neutrino at $m_\nu=0.06$ eV. The same fixed tables supply 50 broad
+points (open) and 25 focused points (filled) to both model routes.
+The tables intersect the benchmark support with $0.2<\Omega_m<0.5$,
+$1<10^9 A_s\le 3.5$, $H_0<85$ km/s/Mpc, $w_0>-2$ and
+$\Omega_b(H_0/100)^2<0.035$. The solid and dashed curves show the saved
+68% and 95% nuisance-marginalized Fisher regions.
+
+CAMB uses `AccuracyBoost: 1.0`, `k_per_logint: 12` and `kmax: 10`. The saved
+Fisher contours are unreliable. The archived diagnostic found a maximum FoM
+shift of 37.36%.
 
 ![DES Cluster hybrid-emulator error against CAMB](figures/emulator_precision.png)
 
-Thresholds are 0.2, 0.5, 1 and 4. Failures are counted separately.
+Counts use the thresholds 0.2, 0.5, 1 and 4 in that order.
 
 | Case | Broad below threshold (50) | Focused below threshold (25) | Nonfinite broad/focused |
 | --- | --- | --- | --- |
-| DES Cluster | 33/41/46/48 | 25/25/25/25 | 0/0 |
+| DES Cluster | 34/40/46/48 | 25/25/25/25 | 0/0 |
 
-Copy a completed run's `fisher/emulator_fisher.png` to `tests/figures/emulator_precision.png` to refresh this figure.
 <!-- end hybrid-emulator figure -->
 
 E5 reads the saved `benchmark.yaml` in [fisher_reference/](fisher_reference/).
 The benchmark fixes the likelihood, data selection, sampled parameters,
-fiducial and normal numerical controls. The figures above record earlier
-runs with the CAMB mean controls used at that time.
+fiducial and normal numerical controls.
 
 The accuracy test evaluates CAMB and the candidate at the fixed
 [50 broad and 25 focused points](fisher_reference/) and stores both
