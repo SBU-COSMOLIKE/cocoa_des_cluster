@@ -259,9 +259,11 @@ CAMB derivatives at two step sizes and marginalizes the sampled nuisance
 parameters with their Gaussian prior curvature and hard bounds. Its figure
 uses the approved error thresholds 0.2, 0.5 and 1, the project title and the
 3.5 amplitude cap. These contours describe a centered local forecast,
-not a fit to the observed posterior. The shared test also draws 25 local
-points from the bounded Fisher sample, evaluates CAMB and the emulator at
-those points, and overlays them as filled markers beside the open prior markers.
+not a fit to the observed posterior. The shared test also selects 25 local
+cosmologies from the fully marginalized bounded Fisher sample. Both CAMB
+and emulator use fixed evaluate-1 nuisance values for these accuracy tests,
+as for the broad-prior comparisons. The resulting points appear as filled
+markers beside the open prior markers.
 Error bands have distinct colors and shapes; failed evaluations use crosses.
 Their separate predictions and errors are saved under `local/` within the
 same run directory. `--local-points` supplies a different named parameter
