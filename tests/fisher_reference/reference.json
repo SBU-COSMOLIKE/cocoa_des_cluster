@@ -123,7 +123,7 @@
     "DES_CL_R0"
   ],
   "quality": "unreliable",
-  "quality_note": "Saved Fisher reference unreliable, maximum FoM shift 37.36%. Contour omitted.",
+  "quality_note": "Saved Fisher contours are unreliable (max. FoM shift 37.36%).",
   "rows": [
     891,
     892,
