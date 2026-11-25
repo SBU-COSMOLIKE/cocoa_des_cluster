@@ -1,4 +1,4 @@
-"""Official E5 hybrid-emulator comparison, following LSST Y1.
+"""E5 hybrid-emulator comparison, following LSST Y1.
 
 The numerical sweep runs in a separate process to isolate compiled
 likelihood state. A saved Fisher reference can supply the contour. Missing model files skip

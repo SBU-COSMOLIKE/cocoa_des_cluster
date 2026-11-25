@@ -247,7 +247,7 @@ The tests do not bound errors across the whole prior or validate dynamical
 dark energy. The actual provider option and its field/state tests are
 explained in the emulator-code README.
 
-## Official hybrid-emulator test
+## Hybrid-emulator accuracy test
 
 <!-- hybrid-emulator figure -->
 The CAMB reference uses the saved benchmark's standard numerical controls and one
