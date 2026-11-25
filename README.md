@@ -183,6 +183,10 @@ The outputs are written to `projects/des_cluster/chains/`.
 
 # Running Hybrid Cosmolike-ML emulators <a name="des_cluster_examples_emul2"></a>
 
+The examples that vary dark energy enforce $w_0+w_a < -0.4$, following
+Victoria Lloyd's recommended upper limit for the linear matter-power
+emulator. Fixed $\Lambda$CDM uses $w_0+w_a=-1$.
+
 > [!NOTE]
 > These hybrid examples remain experimental. The checks below verify the
 > workflow; assess emulator accuracy and posterior convergence for your analysis.
