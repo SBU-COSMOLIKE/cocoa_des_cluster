@@ -755,7 +755,7 @@ with `cold_power: eisenstein_hu` and `cold_neutrino_species: 1`. The theory
 rescales total power using the cold/total transfer ratio at the same mass.
 The current examples fix mnu=0.06 eV and flat LCDM, the validated domain
 of this conversion. The likelihood no longer applies the constant
-small-scale ratio. The [official comparison](tests/README.md#official-hybrid-emulator-test)
+small-scale ratio. The [emulator accuracy test](tests/data_vector/README.md#hybrid-emulator-accuracy-test)
 measures the resulting total prediction error against CAMB; it includes the
 neural-network error as well as the cold-field approximation.
 
