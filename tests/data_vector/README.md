@@ -447,7 +447,8 @@ The CPL comparison is unavailable with the installed emulator. DES Cluster
 requires linear cold dark matter plus baryon power for its halo calculations.
 The installed Eisenstein–Hu cold-power provider accepts only flat ΛCDM
 with $w_0=-1$ and $w_a=0$. CAMB can evaluate CPL with the same survey
-likelihood.
+likelihood. The staged CPL inputs retain 50 broad cosmologies with
+$w_0+w_a<-0.4$. [Staged CPL benchmark](../fisher_reference/w0wa/)
 
 The archived ΛCDM comparison used one massive neutrino with
 $\sum m_\nu=0.06$ eV, CAMB `AccuracyBoost: 1.0`,
