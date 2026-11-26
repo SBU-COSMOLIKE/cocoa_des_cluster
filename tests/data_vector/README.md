@@ -42,12 +42,13 @@ and TATT, and their tests cover both.
 2. [The tests](#the_tests)
     1. [The sector-ladder cache check](#cache_ladder)
     2. [The TATT sector ladder](#cache_ladder_tatt)
-    3. [The non-Limber galaxy-galaxy lensing check](#nonlimber_ggl)
-    4. [The non-Limber galaxy clustering check](#nonlimber_gg)
-    5. [The photo-z convention checks](#photoz_conventions)
-    6. [The cold dark matter + baryon halo field](#neutrino_cb)
-    7. [Accuracy checks](#accuracy_checks)
-    8. [The non-Limber early-exit tolerance checks](#nonlimber_tolerance)
+    3. [CFASTPT vs FAST-PT](#cfastpt_fastpt)
+    4. [The non-Limber galaxy-galaxy lensing check](#nonlimber_ggl)
+    5. [The non-Limber galaxy clustering check](#nonlimber_gg)
+    6. [The photo-z convention checks](#photoz_conventions)
+    7. [The cold dark matter + baryon halo field](#neutrino_cb)
+    8. [Accuracy checks](#accuracy_checks)
+    9. [The non-Limber early-exit tolerance checks](#nonlimber_tolerance)
 3. [Live radial projection accuracy](#radial_projection_accuracy)
 4. [Hybrid-emulator accuracy test](#hybrid-emulator-accuracy-test)
 5. [FoM convergence](#fom-convergence)
@@ -135,22 +136,25 @@ cover:
 
 | test | file | configuration | what it checks |
 |---|---|---|---|
-| 1 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
+| 1 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | χ² score drift against the stored fiducial reference |
 | 2 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 3 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
+| 3 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | χ² score drift against the stored fiducial reference |
 | 4 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 5 | `test_example3.py` | cosmic shear; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
+| 5 | `test_example3.py` | cosmic shear; IA modeling: NLA | χ² score drift against the stored fiducial reference |
 | 6 | `test_example3.py` | cosmic shear; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 7 | `test_example3.py` | cosmic shear; IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
+| 7 | `test_example3.py` | cosmic shear; IA modeling: TATT | χ² score drift against the stored fiducial reference |
 | 8 | `test_example3.py` | cosmic shear; IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 9 | `test_example4.py` | 3x2pt; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
+| 9 | `test_example4.py` | 3x2pt; IA modeling: NLA | χ² score drift against the stored fiducial reference |
 | 10 | `test_example4.py` | 3x2pt; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 11 | `test_example4.py` | 3x2pt; IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
+| 11 | `test_example4.py` | 3x2pt; IA modeling: TATT | χ² score drift against the stored fiducial reference |
 | 12 | `test_example4.py` | 3x2pt; IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 13 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
+| 13 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | χ² score drift against the stored fiducial reference |
 | 14 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 15 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
+| 15 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | χ² score drift against the stored fiducial reference |
 | 16 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
+| 17 | `test_fastpt.py` | cosmic shear; IA modeling: TATT | CFASTPT and Python FAST-PT prediction difference over 30 alignment points |
+| 18 | `test_fastpt.py` | 3×2pt; IA modeling: TATT | CFASTPT and Python FAST-PT prediction difference over 30 alignment points |
+| 19 | `test_fastpt.py` | 2×2pt; IA modeling: TATT | CFASTPT and Python FAST-PT prediction difference over 30 alignment points |
 | - | `test_cache_consistency.py` | 4x2pt + N and 6x2pt + N; IA modeling: NLA | the sector ladder: every parameter group moves its own blocks of the data vector and no other, and the result never depends on the update history |
 | - | `test_cache_consistency_tatt.py` | 3x2pt; IA modeling: TATT | the sector ladder with the FAST-PT tables of TATT: the result never depends on the update history |
 | - | `test_nonlimber_ggl.py` | 3x2pt; IA modeling: NLA | Limber vs non-Limber galaxy-galaxy lensing (`adopt_limber_gs`): the flag reaches the code and moves γₜ alone |
@@ -245,6 +249,36 @@ the ladder's final point. What must hold:
 
 The NLA ladder of the galaxy-only likelihoods is not repeated: the
 `ss`, `gs`, and `gg` blocks of 6x2pt + N already walk it.
+
+### CFASTPT vs FAST-PT (`test_fastpt.py`, tests 17–19) <a name="cfastpt_fastpt"></a>
+
+[**Mechanism**](https://github.com/CosmoLike/cocoa-cosmolike-core/blob/main/README.md#dv_fastpt).
+At a fixed cosmology, vary the five TATT intrinsic-alignment parameters
+over the 30 shared comparison points. The C implementation supplies the
+reference prediction at each point. The test measures $`\Delta\chi^2`$
+against that vector using the corresponding DES Y3 mask and covariance.
+It checks the default Python grids against the 0.2 target and reports
+the result with both Python grid multipliers doubled.
+
+Each grid column gives the maximum Δχ² over the 30 points.
+
+| Test | Optical likelihood | Default | Doubled |
+| --- | --- | ---: | ---: |
+| 17 | Cosmic shear | 1.1×10⁻⁴ | 7.4×10⁻⁵ |
+| 18 | 3×2pt | 1.1×10⁻⁴ | 7.7×10⁻⁵ |
+| 19 | 2×2pt | 3×10⁻⁶ | 3×10⁻⁶ |
+
+All 30 tested points in each optical likelihood meet the comparison
+target with the default Python grids.
+
+Use the activated Cocoa directory with the Python FAST-PT package
+installed and the thread settings in [Running the tests](#run_tests).
+
+**Step :one:** Run the optical alignment comparisons.
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector/test_fastpt.py
+```
 
 ### The non-Limber galaxy-galaxy lensing check (`test_nonlimber_ggl.py`) <a name="nonlimber_ggl"></a>
 

@@ -215,17 +215,29 @@ RACE_TOLERANCE = _cct.RACE_TOLERANCE
 RACE_PERTURBATIONS = _cct.RACE_PERTURBATIONS
 HIGH_ACCURACY_CAMB_EXTRA_ARGS = _cct.HIGH_ACCURACY_CAMB_EXTRA_ARGS
 
+# Optical TATT compares the two Python grids against CFASTPT at the same
+# 30 alignment points. The cluster likelihoods use NLA and do not enter.
+FASTPT_COMPARISON_TOLERANCE = 0.2
+FASTPT_LOW_SETTINGS = {
+    "accuracyboost": 1.0,
+    "internal_accuracyboost": 1.0,
+    "kmax_boltzmann": 7.5,
+    "extrap_kmax": 250.0,
+}
+FASTPT_HIGH_SETTINGS = {
+    "accuracyboost": 2.0,
+    "internal_accuracyboost": 2.0,
+    "kmax_boltzmann": 7.5,
+    "extrap_kmax": 250.0,
+}
+
 # ---- the harness -----------------------------------------------------------
 
 # ONE instance binds the shared machinery to this project's data;
 # everything below re-exports its functions under the names the test
 # modules import.
-# The constructor also takes the tables of checks this project does
-# not run (the one-knob-at-a-time scan, the CFASTPT-vs-FASTPT
-# comparison); they are empty here, so a later project test that
-# needs one must fill its table first. No project-wide nla_dataset:
-# the galaxy-only entries name their own, and the cluster entries
-# must keep their shipped data_file.
+# No project-wide nla_dataset: the galaxy-only entries name their own,
+# and the cluster entries must keep their shipped data_file.
 _H = _cct.CocoaTestHarness(
     worker_file=__file__,
     interface_module="cosmolike_des_cluster_interface",
@@ -233,9 +245,9 @@ _H = _cct.CocoaTestHarness(
     tatt_point=TATT_POINT,
     accuracy_knobs=[],
     high_accuracy_likelihood=HIGH_ACCURACY_LIKELIHOOD,
-    fastpt_low_settings={},
-    fastpt_high_settings={},
-    fastpt_points=[],
+    fastpt_low_settings=FASTPT_LOW_SETTINGS,
+    fastpt_high_settings=FASTPT_HIGH_SETTINGS,
+    fastpt_points=_cct.fastpt_comparison_points(prefix="DES"),
 )
 
 # ---- module functions re-exported from the core (no project state) ----------
@@ -248,6 +260,7 @@ _load_datavector = _cct._load_datavector
 report_chi2_test = _cct.report_chi2_test
 report_race_test = _cct.report_race_test
 report_accuracy = _cct.report_accuracy
+report_fastpt_comparison = _cct.report_fastpt_comparison
 
 # ---- bound methods of the harness (the machinery, project-bound) ------------
 compute_manifest = _H.compute_manifest
@@ -269,6 +282,8 @@ _worker = _H._worker
 # the setting-sequence worker (setting_sequence_suite spawns it)
 _sequence_worker = _H._sequence_worker
 _run_isolated = _H._run_isolated
+_fastpt_comparison_block = _H._fastpt_comparison_block
+cfastpt_vs_fastpt_chi2s = _H.cfastpt_vs_fastpt_chi2s
 
 # ---- one data set per process -----------------------------------------------
 
