@@ -11,7 +11,7 @@ through leftover internal state or colliding OpenMP threads), and a
 stale cache (a table that is not rebuilt when one of the parameters it
 depends on moves).
 
-The mechanism of the check families this suite shares with the other
+The mechanism of the check families these tests share with the other
 projects - the frozen-reference and race contract, the accuracy
 settings and their cost order, the non-Limber, photo-z and
 cache-ladder constructions - is documented once in
@@ -60,35 +60,44 @@ and TATT, and their tests cover both.
 
 ## Running the tests <a name="run_tests"></a>
 
-The steps below assume the Conda cocoa environment is active
-(`conda activate cocoa`), the shell is bash, and the current folder is
-the cocoa main folder `cocoa/Cocoa`.
+Use Bash in the main `cocoa/Cocoa/` directory with the Cocoa Conda
+environment activated.
 
-**Step :one:**: activate the private Python environment by sourcing
-the script `start_cocoa.sh`
+**Step :one:** Load Cocoa.
 
-    source start_cocoa.sh
+```bash
+source start_cocoa.sh
+```
 
-**Step :two:**: run the tests of this project
+**Step :two:** Set four OpenMP threads and one BLAS thread.
 
-    python -m pytest ./projects/des_cluster/tests/data_vector
+- Linux
 
-Without pytest:
+      export OMP_NUM_THREADS=4 COCOA_TEST_OMP_THREADS=4 OMP_DYNAMIC=FALSE \
+        OMP_PROC_BIND=close OMP_PLACES=cores OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
-    python -m unittest discover -s ./projects/des_cluster/tests/data_vector -v
+- macOS (arm)
 
-The tests change no project files. Each test prints a progress line
-per model build and per evaluation, then a report with the
-computed $\chi^2$, the stored reference, the difference, and the pass
-limit.
+      export OMP_NUM_THREADS=4 COCOA_TEST_OMP_THREADS=4 OMP_DYNAMIC=FALSE \
+        OMP_PROC_BIND=disabled OMP_PLACES=cores OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
-A full run performs about 345 likelihood evaluations, about 220 of them on
-the cluster combinations. The test files set their OpenMP worker count
-before imports, and every model build of the reference, race, and accuracy
-tests runs in its own worker subprocess: cosmolike aborts a process that
-initializes two configurations with different data-set dimensions, and the
-cluster and the galaxy-only examples use two data sets (2812 and 900
-entries). The two covariances of the frozen data
+**Step :three:** Run the data-vector tests.
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector
+```
+
+For unittest discovery, use this alternative.
+
+```bash
+python -m unittest discover -s projects/des_cluster/tests/data_vector -v
+```
+
+The reference, race and accuracy tests build each model in its own
+process because the cluster and galaxy examples use different data
+vector dimensions. The two covariances of the frozen data
 (`frozen/data/des_cluster_y6_cov.npy`, 32 MB, and
 `frozen/data/des_y3_cov_unblinded_final.txt`, 19 MB) are stored with Git
 LFS: a clone without `git lfs pull` holds a pointer file in place of each,
@@ -97,15 +106,6 @@ and every test except the four that read the live data set
 `test_cluster_zdist_convention.py`, `test_nonlimber_cluster.py`) then stops
 at the manifest check, naming the file.
 
-This sector has 42 tests. They take about 10 minutes on an Apple M2
-laptop (602 s of pytest time at the forced 4 OpenMP threads).
-
-The shared likelihood tests default to four OpenMP workers. For six workers,
-set `COCOA_TEST_OMP_THREADS=6` and `OMP_THREAD_LIMIT=6` before
-starting Python. The entry points copy the test setting to
-`OMP_NUM_THREADS` before importing native libraries. Keep BLAS at
-one worker. A smaller OpenMP thread limit can reduce the actual team
-below the requested count.
 
 ## The tests <a name="the_tests"></a>
 
@@ -135,32 +135,32 @@ cover:
 
 | test | file | configuration | what it checks |
 |---|---|---|---|
-| 1 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 1 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
 | 2 | `test_example1.py` | 4x2pt + N; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 3 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 3 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
 | 4 | `test_example2.py` | 6x2pt + N; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 5 | `test_example3.py` | cosmic shear; IA modeling: NLA | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 5 | `test_example3.py` | cosmic shear; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
 | 6 | `test_example3.py` | cosmic shear; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 7 | `test_example3.py` | cosmic shear; IA modeling: TATT | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 7 | `test_example3.py` | cosmic shear; IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
 | 8 | `test_example3.py` | cosmic shear; IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 9 | `test_example4.py` | 3x2pt; IA modeling: NLA | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 9 | `test_example4.py` | 3x2pt; IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
 | 10 | `test_example4.py` | 3x2pt; IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 11 | `test_example4.py` | 3x2pt; IA modeling: TATT | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 11 | `test_example4.py` | 3x2pt; IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
 | 12 | `test_example4.py` | 3x2pt; IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 13 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 13 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | Δχ² against the stored reference at the fiducial point |
 | 14 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: NLA | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
-| 15 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | $\Delta\chi^2$ against the stored reference at the fiducial point |
+| 15 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | Δχ² against the stored reference at the fiducial point |
 | 16 | `test_example4_2x2pt.py` | 2x2pt (`des_cluster.combo_2x2pt`); IA modeling: TATT | race condition (OpenMP threading): fiducial alone vs after nine other cosmologies |
 | - | `test_cache_consistency.py` | 4x2pt + N and 6x2pt + N; IA modeling: NLA | the sector ladder: every parameter group moves its own blocks of the data vector and no other, and the result never depends on the update history |
 | - | `test_cache_consistency_tatt.py` | 3x2pt; IA modeling: TATT | the sector ladder with the FAST-PT tables of TATT: the result never depends on the update history |
-| - | `test_nonlimber_ggl.py` | 3x2pt; IA modeling: NLA | Limber vs non-Limber galaxy-galaxy lensing (`adopt_limber_gs`): the flag reaches the code and moves $\gamma_t$ alone |
-| - | `test_nonlimber_gg.py` | 3x2pt; IA modeling: NLA | Limber vs non-Limber galaxy clustering (`adopt_limber_gg`): the flag reaches the code and moves $w(\theta)$ alone |
+| - | `test_nonlimber_ggl.py` | 3x2pt; IA modeling: NLA | Limber vs non-Limber galaxy-galaxy lensing (`adopt_limber_gs`): the flag reaches the code and moves γₜ alone |
+| - | `test_nonlimber_gg.py` | 3x2pt; IA modeling: NLA | Limber vs non-Limber galaxy clustering (`adopt_limber_gg`): the flag reaches the code and moves w(θ) alone |
 | - | `test_photoz_conventions.py` | cosmic shear; IA modeling: NLA | the n(z) interpolation and z-column conventions: each flag reaches the code and the n(z) caches rebuild |
 | - | `test_cluster_area.py` | 4x2pt + N on the Python reference's CAMB run (no cobaya) | the optional survey area as a function of redshift (`cluster_area_file`): an empty table is the default, a constant table gives the default counts and leaves every two-point entry exact, a taper matches an independent integral, removing it restores the default, and a table that misses a cluster bin stops the process |
 | - | `test_cluster_zdist_convention.py` | 4x2pt + N on the Python reference's CAMB run (no cobaya) | the z convention of the cluster table (`cluster_zmid_convention`): left cell edges equal the cell centres read as sample points, exactly, and the default returns exactly |
-| - | `test_nonlimber_cluster.py` | 4x2pt + N on the Python reference's CAMB run (no cobaya) | non-Limber $w_{cc}$ and $w_{cg}$ (`cluster_adopt_limber_cc`, `cluster_adopt_limber_cg`): only those blocks move, the measured ratios to Limber hold to 5%, the redshift-space boost is positive at 177 arcmin, the result is the same at 1, 8 and 4 threads, and Limber returns exactly |
+| - | `test_nonlimber_cluster.py` | 4x2pt + N on the Python reference's CAMB run (no cobaya) | non-Limber cluster–cluster correlation and cluster–galaxy correlation (`cluster_adopt_limber_cc`, `cluster_adopt_limber_cg`): only those blocks move, the measured ratios to Limber hold to 5%, the redshift-space boost is positive at 177 arcmin, the result is the same at 1, 8 and 4 threads, and Limber returns exactly |
 | - | `test_neutrino_cb.py` | 4x2pt + N on the Python reference's CAMB run (no cobaya) | evolving cb variance: the massless limit, both fields against independent quadrature at four scale factors, counts and bias, cache invalidation, thread determinism, and the missing-spectrum guard |
-| A1-A6 | `test_accuracy.py` | 4x2pt + N, 6x2pt + N, cosmic shear, 2x2pt, 3x2pt with NLA; 3x2pt with TATT | advisory: $\Delta\chi^2$ of the default numerical settings against high-accuracy settings (no pass/fail) |
+| A1-A6 | `test_accuracy.py` | 4x2pt + N, 6x2pt + N, cosmic shear, 2x2pt, 3x2pt with NLA; 3x2pt with TATT | advisory: Δχ² of the default numerical settings against high-accuracy settings (no pass/fail) |
 
 ### The sector-ladder cache check (`test_cache_consistency.py`) <a name="cache_ladder"></a>
 
@@ -418,7 +418,7 @@ the jitter one evaluation adds to a derivative column.
 
 Measured on 2026-11-18 (OMP 4), $\sigma$ in $\sqrt{\chi^2}$ units:
 
-| stencil noise $\sigma$ | $w_0$ | $w_a$ | `DES_B1_5` |
+| stencil noise σ | w₀ | wₐ | `DES_B1_5` |
 |---|---|---|---|
 | default tolerances, cap 150 (production) | 2.86e-3 | 5.6e-5 | 1.2e-12 |
 | tolerance 0, cap 150 | 1.28e-4 | 5.7e-5 | 1.2e-12 |
@@ -469,19 +469,27 @@ Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 
       export COCOA_TEST_OMP_THREADS=4 OMP_NUM_THREADS=4
       export OMP_PROC_BIND=close OMP_PLACES=cores OMP_DYNAMIC=FALSE
-      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+      export OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
 - macOS (arm)
 
       export COCOA_TEST_OMP_THREADS=4 OMP_NUM_THREADS=4
       export OMP_PROC_BIND=disabled OMP_PLACES=cores OMP_DYNAMIC=FALSE
-      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+      export OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
 **Step :two:**: Run the [live projection accuracy checks](test_projection_accuracy.py).
 
     python -m pytest -s projects/des_cluster/tests/data_vector/test_projection_accuracy.py
 
 ## Hybrid-emulator accuracy test <a name="hybrid-emulator-accuracy-test"></a>
+
+**Mechanism.** Compare the candidate emulator's predictions with CAMB at
+the same saved cosmologies and nuisance values. Score the prediction
+differences using the benchmark mask and covariance.
 
 The synthetic DES Y6-like 4×2pt+N mask retains 889 rows. Cluster abundances use
 the linear cold-matter spectrum. For CPL, the candidate rescales Eisenstein–Hu
@@ -493,12 +501,12 @@ its matched ΛCDM cosmology at $k=0.05\,\mathrm{Mpc}^{-1}$.
 
 | Parameter | Range |
 | --- | --- |
-| Total matter density | $0.2<\Omega_m<0.5$ |
-| Primordial amplitude | $1<10^9 A_s\le 3.5$ |
-| Hubble constant | $H_0<85$ km/s/Mpc |
-| Present dark-energy equation of state | $w_0>-2$ |
-| Early-time dark-energy equation of state | $w_0+w_a<-0.4$ |
-| Physical baryon density | $\Omega_b(H_0/100)^2<0.035$ |
+| Total matter density | 0.2 < Ωm < 0.5 |
+| Primordial amplitude | 1 < 10⁹ Aₛ ≤ 3.5 |
+| Hubble constant | H₀ < 85 km/s/Mpc |
+| Present dark-energy equation of state | w₀ > −2 |
+| Early-time dark-energy equation of state | w₀ + wₐ < −0.4 |
+| Physical baryon density | Ωb (H₀ / 100)² < 0.035 |
 
 The fixed model tables intersect these limits with the project priors.
 2/50 broad and 1/25 focused points extend beyond the common observed
@@ -536,10 +544,10 @@ cold-to-total power ratio. The exact CAMB replay matched the saved vectors
 bit for bit. The cold-only distances were small compared with the full
 candidate distances.
 
-| Draw | Cold-only $E$ | Full $E$ |
+| Draw | Cold-only Δχ² | Full Δχ² |
 | --- | ---: | ---: |
-| Broad 41 | $2.65063\times10^{-3}$ | 90310.44 |
-| Focused 14 | $1.29808\times10^{-5}$ | 122.72 |
+| Broad 41 | 2.7×10⁻³ | 90310.44 |
+| Focused 14 | 1.3×10⁻⁵ | 122.72 |
 
 The full distance includes the covariance cross term between the cold-only
 change and the remaining prediction change. It was $-24.7510$ for broad draw
@@ -561,14 +569,36 @@ Cocoa.
 python -m pytest projects/des_cluster/tests/data_vector/test_emul2.py -k e5
 ```
 
-Use the same comparison driver for MPI, assigning two ranks and four
-OpenMP threads per rank with BLAS at one thread.
+For MPI, run from the main `Cocoa/` directory with the environment activated.
 
-```bash
-OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
-  projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
-```
+**Step :one:** Set four OpenMP threads and one BLAS thread per rank.
+
+- Linux
+
+      export OMP_NUM_THREADS=4 OMP_DYNAMIC=FALSE \
+        OMP_PROC_BIND=close OMP_PLACES=cores OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+- macOS (arm)
+
+      export OMP_NUM_THREADS=4 OMP_DYNAMIC=FALSE \
+        OMP_PROC_BIND=disabled OMP_PLACES=cores OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+**Step :two:** Run the comparison with two MPI ranks.
+
+- Linux
+
+      "${CONDA_PREFIX}"/bin/mpirun -n 2 --oversubscribe \
+        --mca pml ob1 --mca btl vader,tcp,self \
+        --bind-to core:overload-allowed --map-by numa:pe="${OMP_NUM_THREADS}" \
+        python -m mpi4py \
+        projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
+
+- macOS (arm)
+
+      mpirun -n 2 --bind-to none python -m mpi4py \
+        projects/des_cluster/tests/compare_emulator_camb.py --mpi --advisory
 
 Use `--plot-only /path/to/run` to redraw a completed result. The
 [archived ΛCDM figure](figures/emulator_precision.png) and
@@ -578,40 +608,57 @@ Use `--plot-only /path/to/run` to redraw a completed result. The
 
 This CAMB test builds one full local Fisher matrix at each live Evaluate
 example's ordinary accuracy and physical prescription. The figure of merit is
-$1/\sqrt{\det C_{w_0,w_a}}$, with nuisance parameters marginalized in the
-Gaussian approximation. The sampled pair $w_0,w_0+w_a$ has the same ellipse
+$`1/\sqrt{\det C_{w_0,w_a}}`$, with nuisance parameters marginalized in the
+Gaussian approximation. The sampled pair $`w_0,w_0+w_a`$ has the same ellipse
 area. Gaussian prior curvature enters the Fisher matrix, and prior bounds
 limit the stencil positions.
 
-The five-point stencil uses a fixed 2.5% relative step, shortened near prior
-bounds. A zero-centered parameter uses its specified absolute step or one
-tenth of its proposal width. The fourth differences rank the numerical
-sensitivity of the columns. Both higher settings reevaluate the same selected
-columns and use the same full ordinary Fisher weights. The reported values
-scale the ordinary FoM by each selected-column noise estimate. Contributions
-from omitted columns, smooth derivative shifts and correlated numerical
-errors remain unknown.
+**Mechanism.** The test computes every derivative at the default
+settings. To estimate numerical noise it takes fourth differences of the
+five predictions used for each derivative. The step is 2.5% for nonzero
+parameter values, shortened at prior boundaries. For a zero-centered
+parameter it uses the specified absolute step or one tenth of its
+proposal width.
+
+The estimate treats the derivative errors as centered and uncorrelated.
+
+```math
+F_q \simeq F_0 + \operatorname{diag}(a_q), \qquad S_q = F_q^{-1}.
+```
+
+Here $`F_0`$ is the full default Fisher matrix, and each entry in
+$`a_q`$ is a fourth-difference estimate of the noise for one selected
+derivative at setting $`q`$, weighted by the inverse data covariance. The FoM
+uses the dark-energy block of $`S_q`$. Both refinements reevaluate the
+same selected derivatives. Their noise estimates use the same selection
+at the default and higher settings. Noise in the other derivatives and
+smooth shifts of any derivative remain unmeasured.
 
 The [4×2pt+N](../../EXAMPLE_EVALUATE1.yaml) and
 [6×2pt+N](../../EXAMPLE_EVALUATE2.yaml) runs use CAMB Takahashi with
-one massive neutrino of 0.06 eV. The ordinary native boost and integration
-level are both 1, and the ordinary CAMB boost, `k_per_logint` and
-`kmax` are 1, 12 and 10. Both likelihoods retain their ordinary
-non-Limber tolerances. The native boost and integration level increase to
-2 and then 3 in the higher settings, with CAMB boost and
-`k_per_logint` increasing to 2 and 50, then 3 and 75.
+one massive neutrino of 0.06 eV. All settings keep CAMB `kmax: 10`
+and the default non-Limber tolerances.
 
-| Case | Ordinary FoM | Refined / ordinary | Confirmation / ordinary | Change from refined to confirmation | Model evaluations (ordinary / refined / confirmation) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| 4×2pt+N | 5.401590 | 0.93548633 | 0.93556917 | +0.00885509% | 128 / 28 / 28 |
-| 6×2pt+N | 11.915045 | 0.94491362 | 0.94499288 | +0.00838790% | 176 / 24 / 24 |
+| Setting | Default | Higher | Highest |
+| --- | ---: | ---: | ---: |
+| CosmoLike `accuracyboost` | 1 | 2 | 3 |
+| CosmoLike `integration_accuracy` | 1 | 2 | 3 |
+| CAMB `AccuracyBoost` | 1 | 2 | 3 |
+| CAMB `k_per_logint` | 12 | 50 | 75 |
+
+The entries are estimated FoM changes between successive settings.
+
+| Likelihood | Default → higher | Higher → highest |
+| --- | ---: | ---: |
+| 4×2pt+N | −6.5% | +8.9×10⁻³% |
+| 6×2pt+N | −5.5% | +8.4×10⁻³% |
 
 The baseline differentiates 30 parameters for 4×2pt+N and 42 for
 6×2pt+N. The higher settings reevaluate `w`, `w0pwa`, `H0`,
 `omegam` and `As_1e9` for 4×2pt+N, and the first four for
-6×2pt+N. Both runs met the 1% screen for the estimated
-refined-to-confirmation FoM change. The prediction-distance target
-$E<0.2$ applies to the [live radial projection checks](#radial_projection_accuracy).
+6×2pt+N. Both runs meet the 1% convergence target from higher to highest
+accuracy. Their initial refinements move the estimated FoM by more
+than 1%.
 
 Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 
@@ -621,13 +668,17 @@ Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 
       export OMP_NUM_THREADS=4 OMP_PROC_BIND=close
       export OMP_PLACES=cores OMP_DYNAMIC=FALSE
-      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+      export OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
 - macOS (arm)
 
       export OMP_NUM_THREADS=4 OMP_PROC_BIND=disabled
       export OMP_PLACES=cores OMP_DYNAMIC=FALSE
-      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+      export OPENBLAS_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 \
+        OPENBLAS_DEFAULT_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
 
 **Step :two:**: Choose a likelihood and launch two MPI ranks on one machine.
 
@@ -694,7 +745,7 @@ The `frozen/` snapshot contains the following files.
 |---|---|
 | `frozen_config_<example>.py` | the complete cobaya configuration as a yaml string, plus the exact evaluation point |
 | `data/` | the tests' own copy of the two data sets. The synthetic DES Y6-like one: the dataset descriptors, the joint data vector, the covariance, the two masks, and the n(z) of the sources, the lenses, and the clusters. The DES Y3 placeholder: the dataset descriptor, the data vector, the covariance, the baseline mask, and the n(z) of the sources and the lenses. Plus the two data vectors generated for the galaxy-only examples, with their descriptors (next FAQ) |
-| `reference_chi2.json` | the default-settings $\chi^2$ of each configuration |
+| `reference_chi2.json` | the default-settings χ² of each configuration |
 | `EXAMPLE_EVALUATE{1,2,3,4}.yaml` | snapshots kept only so a human can diff how the live examples drifted since the freeze |
 
 The configuration modules record the settings and parameters resolved
