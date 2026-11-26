@@ -149,13 +149,28 @@ def main(*, fisher=False):
         from cobaya.yaml import yaml_load_file, yaml_dump
         info = yaml_load_file(str(project / args.configuration))
         expanded = update_info(info)
-        expected_cut = "lambda As_1e9, DES_B1_1, DES_B1_2, DES_B1_3: 0.0 if (As_1e9/2.19)*max((DES_B1_1/1.42)**2, (DES_B1_2/1.66)**2, (DES_B1_3/1.7)**2) <= 8 else -np.inf"
+        bias_references = (
+            ("DES_B1_1", 1.42),
+            ("DES_B1_2", 1.66),
+            ("DES_B1_3", 1.7),
+        )
+        if fisher and "des_cluster.combo_6x2pt_N" in info["likelihood"]:
+            bias_references += (
+                ("DES_B1_4", 1.62),
+                ("DES_B1_5", 1.78),
+                ("DES_B1_6", 1.75),
+            )
+        bias_names = ", ".join(bias for bias, _ in bias_references)
+        ratios = ", ".join(f"({bias}/{reference:g})**2"
+                           for bias, reference in bias_references)
+        expected_cut = (f"lambda As_1e9, {bias_names}: 0.0 if "
+                        f"(As_1e9/2.19)*max({ratios}) <= 8 else -np.inf")
         priors = info.get("prior", {})
         if (priors.get("amplitude_cut") != expected_cut
                 or set(priors) - {"amplitude_cut", "emulator_omegabh2_cap"}):
-            raise ValueError("This cluster test requires example 1's documented amplitude cut.")
+            raise ValueError("This cluster test requires the example's documented amplitude cut.")
         maximum = expanded["params"]["As_1e9"]["prior"]["max"] / 2.19
-        for bias, reference in (("DES_B1_1", 1.42), ("DES_B1_2", 1.66), ("DES_B1_3", 1.7)):
+        for bias, reference in bias_references:
             bounds = expanded["params"][bias]["prior"]
             largest_bias = max(abs(bounds["min"]), abs(bounds["max"]))
             if maximum * (largest_bias / reference)**2 > 8:

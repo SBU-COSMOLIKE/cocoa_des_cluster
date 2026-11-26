@@ -441,6 +441,32 @@ Run it alone with
 
     python -m pytest ./projects/des_cluster/tests/data_vector/test_nonlimber_tolerance.py -s
 
+## Live radial projection accuracy
+
+Both joint likelihood examples use global integration level 1 and
+unity probe factors. The counts use 1,024 nodes at the ordinary setting.
+
+| Case | gg nodes per panel | Galaxy–shear nodes per panel | Largest total prediction distance in the three checks |
+| --- | ---: | ---: | ---: |
+| 4×2pt+N | 256 | Masked | 0.0006892 |
+| 6×2pt+N | 256 | 128 | 0.04703 |
+
+The maxima cover three paired points at $H_0=61,69,77$, with the same
+cosmology, nuisances and live mask in each pair. The combined reference
+uses native integration level 3 and 2,048 count nodes at the ordinary
+table boost. It uses CAMB `AccuracyBoost: 1.5`, `k_per_logint: 25`,
+`kmax: 20` and `Accuracy.neutrino_q_boost: 1.25`, with the native
+wavenumber request raised to match the coverage. The test checks the
+total $E=\delta d^\mathsf{T}C^{-1}\delta d<0.2$ and reports the signed
+change in data $\chi^2$ separately. It also varies one control at a time.
+
+Run [the projection accuracy checks](test_projection_accuracy.py)
+from activated Cocoa.
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector/test_projection_accuracy.py
+```
+
 ## Hybrid-emulator accuracy test
 
 The synthetic DES Y6-like 4×2pt+N mask retains 889 rows. Cluster abundances use
@@ -552,30 +578,42 @@ scale the ordinary FoM by each selected-column noise estimate. Contributions
 from omitted columns, smooth derivative shifts and correlated numerical
 errors remain unknown.
 
-CAMB supplies the cold-matter spectrum for [the numbered CPL evaluate](../../EXAMPLE_EVALUATE1.yaml).
+The [4×2pt+N](../../EXAMPLE_EVALUATE1.yaml) and
+[6×2pt+N](../../EXAMPLE_EVALUATE2.yaml) runs use CAMB Takahashi with
+one massive neutrino of 0.06 eV. The ordinary native boost and integration
+level are both 1, and the ordinary CAMB boost, `k_per_logint` and
+`kmax` are 1, 12 and 10. Both likelihoods retain their ordinary
+non-Limber tolerances. The native boost and integration level increase to
+2 and then 3 in the higher settings, with CAMB boost and
+`k_per_logint` increasing to 2 and 50, then 3 and 75.
 
-| Case | Setting | CosmoLike boost / integration | CAMB boost / k_per_logint | Approx. FoM | Change from previous |
-| --- | --- | --- | --- | --- | --- |
-| 4×2pt+N | Ordinary | 1.0 / 1 | 1.0 / 12 | 5.4015863 | — |
-| 4×2pt+N | Refined | 2.0 / 2 | 2.0 / 50 | 5.0531102 | -6.45137% |
-| 4×2pt+N | Confirmation | 3.0 / 3 | 3.0 / 75 | 5.0535576 | +0.00885509% |
+| Case | Ordinary FoM | Refined / ordinary | Confirmation / ordinary | Change from refined to confirmation | Model evaluations (ordinary / refined / confirmation) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4×2pt+N | 5.401590 | 0.93548633 | 0.93556917 | +0.00885509% | 128 / 28 / 28 |
+| 6×2pt+N | 11.915045 | 0.94491362 | 0.94499288 | +0.00838790% | 176 / 24 / 24 |
 
-**Selected columns in both higher settings**
-
-- 4×2pt+N — `H0`, `omegam`, `w0pwa`, `w`, `As_1e9`.
+The baseline differentiates 30 parameters for 4×2pt+N and 42 for
+6×2pt+N. The higher settings reevaluate `w`, `w0pwa`, `H0`,
+`omegam` and `As_1e9` for 4×2pt+N, and the first four for
+6×2pt+N. Both runs met the 1% screen for the estimated
+refined-to-confirmation FoM change. The prediction-distance target
+$E<0.2$ applies to the live radial projection checks above.
 
 Run from activated Cocoa with two MPI ranks, four OpenMP threads per rank
-and one BLAS thread.
+and one BLAS thread. Use `EXAMPLE_EVALUATE2.yaml` and a separate output
+directory for 6×2pt+N.
 
 ```bash
 OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
-  projects/des_cluster/tests/check_fom_convergence.py --mpi
+  projects/des_cluster/tests/check_fom_convergence.py --mpi \
+  --configuration EXAMPLE_EVALUATE1.yaml \
+  --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
+  --output projects/des_cluster/chains/fom_example1
 ```
 
 The run directory contains `fisher/fom_accuracy.tsv`, the effective
-settings for each tier, and the measured and omitted columns. The standalone
-screen applies its 1% tolerance to the estimated refined-to-confirmation change.
+settings for each tier, and the measured and omitted columns.
 
 ## Appendix <a name="appendix"></a>
 
