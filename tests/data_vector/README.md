@@ -48,9 +48,10 @@ and TATT, and their tests cover both.
     6. [The cold dark matter + baryon halo field](#neutrino_cb)
     7. [Accuracy checks](#accuracy_checks)
     8. [The non-Limber early-exit tolerance checks](#nonlimber_tolerance)
-3. [Hybrid-emulator accuracy test](#hybrid-emulator-accuracy-test)
-4. [FoM convergence](#fom-convergence)
-5. [Appendix](#appendix)
+3. [Live radial projection accuracy](#radial_projection_accuracy)
+4. [Hybrid-emulator accuracy test](#hybrid-emulator-accuracy-test)
+5. [FoM convergence](#fom-convergence)
+6. [Appendix](#appendix)
     1. [FAQ: What does this project's snapshot hold?](#frozen_copy)
     2. [FAQ: Why is the reference $\chi^2$ near zero?](#synthetic_vectors)
     3. [FAQ: Why do some tests start a process of their own?](#own_process)
@@ -441,7 +442,7 @@ Run it alone with
 
     python -m pytest ./projects/des_cluster/tests/data_vector/test_nonlimber_tolerance.py -s
 
-## Live radial projection accuracy
+## Live radial projection accuracy <a name="radial_projection_accuracy"></a>
 
 Both joint likelihood examples use global integration level 1 and
 unity probe factors. The counts use 1,024 nodes at the ordinary setting.
@@ -460,14 +461,27 @@ wavenumber request raised to match the coverage. The test checks the
 total $E=\delta d^\mathsf{T}C^{-1}\delta d<0.2$ and reports the signed
 change in data $\chi^2$ separately. It also varies one control at a time.
 
-Run [the projection accuracy checks](test_projection_accuracy.py)
-from activated Cocoa.
+Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 
-```bash
-python -m pytest -s projects/des_cluster/tests/data_vector/test_projection_accuracy.py
-```
+**Step :one:**: Set four OpenMP threads and one BLAS thread.
 
-## Hybrid-emulator accuracy test
+- Linux
+
+      export COCOA_TEST_OMP_THREADS=4 OMP_NUM_THREADS=4
+      export OMP_PROC_BIND=close OMP_PLACES=cores OMP_DYNAMIC=FALSE
+      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+- macOS (arm)
+
+      export COCOA_TEST_OMP_THREADS=4 OMP_NUM_THREADS=4
+      export OMP_PROC_BIND=disabled OMP_PLACES=cores OMP_DYNAMIC=FALSE
+      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+**Step :two:**: Run the [live projection accuracy checks](test_projection_accuracy.py).
+
+    python -m pytest -s projects/des_cluster/tests/data_vector/test_projection_accuracy.py
+
+## Hybrid-emulator accuracy test <a name="hybrid-emulator-accuracy-test"></a>
 
 The synthetic DES Y6-like 4×2pt+N mask retains 889 rows. Cluster abundances use
 the linear cold-matter spectrum. For CPL, the candidate rescales Eisenstein–Hu
@@ -560,7 +574,7 @@ Use `--plot-only /path/to/run` to redraw a completed result. The
 [archived ΛCDM figure](figures/emulator_precision.png) and
 [its benchmark inputs](../fisher_reference/) describe the earlier experiment.
 
-## FoM convergence
+## FoM convergence <a name="fom-convergence"></a>
 
 This CAMB test builds one full local Fisher matrix at each live Evaluate
 example's ordinary accuracy and physical prescription. The figure of merit is
@@ -597,25 +611,65 @@ The baseline differentiates 30 parameters for 4×2pt+N and 42 for
 `omegam` and `As_1e9` for 4×2pt+N, and the first four for
 6×2pt+N. Both runs met the 1% screen for the estimated
 refined-to-confirmation FoM change. The prediction-distance target
-$E<0.2$ applies to the live radial projection checks above.
+$E<0.2$ applies to the [live radial projection checks](#radial_projection_accuracy).
 
-From activated Cocoa, set four OpenMP threads and one BLAS thread per rank.
+Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 
-```bash
-export OMP_NUM_THREADS=4
-export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
-```
+**Step :one:**: Set four OpenMP threads and one BLAS thread per rank.
 
-Launch two MPI ranks. Use `EXAMPLE_EVALUATE2.yaml` and a separate output
-directory for 6×2pt+N.
+- Linux
 
-```bash
-mpirun -n 2 --bind-to none python -m mpi4py \
-  projects/des_cluster/tests/check_fom_convergence.py --mpi \
-  --configuration EXAMPLE_EVALUATE1.yaml \
-  --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
-  --output projects/des_cluster/chains/fom_example1
-```
+      export OMP_NUM_THREADS=4 OMP_PROC_BIND=close
+      export OMP_PLACES=cores OMP_DYNAMIC=FALSE
+      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+- macOS (arm)
+
+      export OMP_NUM_THREADS=4 OMP_PROC_BIND=disabled
+      export OMP_PLACES=cores OMP_DYNAMIC=FALSE
+      export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+
+**Step :two:**: Choose a likelihood and launch two MPI ranks on one machine.
+
+- **4×2pt+N**
+
+  - Linux
+
+        "${CONDA_PREFIX}"/bin/mpirun -n 2 --oversubscribe \
+          --mca pml ob1 --mca btl vader,tcp,self \
+          --bind-to none python -m mpi4py \
+          projects/des_cluster/tests/check_fom_convergence.py --mpi \
+          --configuration EXAMPLE_EVALUATE1.yaml \
+          --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
+          --output projects/des_cluster/chains/fom_4x2ptn
+
+  - macOS (arm)
+
+        mpirun -n 2 --oversubscribe --bind-to none python -m mpi4py \
+          projects/des_cluster/tests/check_fom_convergence.py --mpi \
+          --configuration EXAMPLE_EVALUATE1.yaml \
+          --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
+          --output projects/des_cluster/chains/fom_4x2ptn
+
+- **6×2pt+N**
+
+  - Linux
+
+        "${CONDA_PREFIX}"/bin/mpirun -n 2 --oversubscribe \
+          --mca pml ob1 --mca btl vader,tcp,self \
+          --bind-to none python -m mpi4py \
+          projects/des_cluster/tests/check_fom_convergence.py --mpi \
+          --configuration EXAMPLE_EVALUATE2.yaml \
+          --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
+          --output projects/des_cluster/chains/fom_6x2ptn
+
+  - macOS (arm)
+
+        mpirun -n 2 --oversubscribe --bind-to none python -m mpi4py \
+          projects/des_cluster/tests/check_fom_convergence.py --mpi \
+          --configuration EXAMPLE_EVALUATE2.yaml \
+          --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
+          --output projects/des_cluster/chains/fom_6x2ptn
 
 The run directory contains `fisher/fom_accuracy.tsv`, the effective
 settings for each tier, and the measured and omitted columns.
