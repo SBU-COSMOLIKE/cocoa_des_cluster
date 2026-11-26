@@ -48,7 +48,8 @@ and TATT, and their tests cover both.
     6. [The photo-z convention checks](#photoz_conventions)
     7. [The cold dark matter + baryon halo field](#neutrino_cb)
     8. [Accuracy checks](#accuracy_checks)
-    9. [The non-Limber early-exit tolerance checks](#nonlimber_tolerance)
+    9. [N-random-models accuracy check](#nmodels_check)
+    10. [The non-Limber early-exit tolerance checks](#nonlimber_tolerance)
 3. [Live radial projection accuracy](#radial_projection_accuracy)
 4. [Hybrid-emulator accuracy test](#hybrid-emulator-accuracy-test)
 5. [FoM convergence](#fom-convergence)
@@ -96,7 +97,7 @@ For unittest discovery, use this alternative.
 python -m unittest discover -s projects/des_cluster/tests/data_vector -v
 ```
 
-The reference, race and accuracy tests build each model in its own
+The reference, race and fiducial accuracy tests build each model in its own
 process because the cluster and galaxy examples use different data
 vector dimensions. The two covariances of the frozen data
 (`frozen/data/des_cluster_y6_cov.npy`, 32 MB, and
@@ -396,13 +397,89 @@ galaxy-galaxy lensing, and the 3x2pt vector holds both blocks.
 > [!NOTE]
 > High-accuracy evaluations take minutes.
 
-To run the accuracy checks on their own:
+Use the activated `Cocoa/` directory and setup in
+[Running the tests](#run_tests).
 
-    python -m pytest ./projects/des_cluster/tests/data_vector/test_accuracy.py
+**Step :one:** Choose which tests to run.
 
-To run every other test while skipping these:
+**Accuracy checks only**
 
-    python -m pytest ./projects/des_cluster/tests/data_vector --ignore ./projects/des_cluster/tests/data_vector/test_accuracy.py
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector/test_accuracy.py
+```
+
+**Other data-vector tests**
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector \
+  --ignore projects/des_cluster/tests/data_vector/test_accuracy.py
+```
+
+### N-random-models accuracy check <a name="nmodels_check"></a>
+
+[**Mechanism**](https://github.com/CosmoLike/cocoa-cosmolike-core/blob/main/README.md#dv_nmodels).
+Use NLA for optical DES Y3 3×2pt with the priors in
+`EXAMPLE_EVALUATE4.yaml`.
+Draw 50 points over the sampled cosmological and
+nuisance parameters, starting model $`m`$ at seed $`137+m`$ with $`m=0`$
+for the first model. A draw that fails a joint prior cut is replaced
+using the same seed's random stream. The priors enforce
+$`w_0+w_a<-0.4`$ and $`\Omega_b h^2<0.035`$.
+The joint `amplitude_cut` also requires
+$`\max_i[A_s b_i^2/(A_s b_i^2)_{\rm fid}]\leq 8`$, with each lens bin
+normalized by its fiducial amplitude in the evaluation YAML.
+
+Compare each ordinary prediction with the saved prediction at the same
+point using the [combined refinements](#accuracy_checks). The two vectors
+share the survey mask and covariance. The measured Δχ² values are
+reported against the advisory target of 0.2.
+
+| Ordinary CAMB control | Value |
+| --- | ---: |
+| `AccuracyBoost` | 1.05 |
+| `k_per_logint` | 10 |
+| Requested `kmax` (Mpc⁻¹) | 10 |
+
+The effective ordinary cutoff is 10 Mpc⁻¹.
+The pushed model requests `kmax: 50` Mpc⁻¹ in CAMB and reaches 120 Mpc⁻¹
+because CosmoLike requests power to `kmax_boltzmann × accuracyboost`.
+
+`tests/frozen/nmodels_example4.npz` stores the accepted points, the
+pushed predictions and the masked precision. Each test run evaluates
+the ordinary predictions and reads that saved file.
+
+All 50 predictions exceeded the target. The smallest Δχ² was 81,
+the median was 1.9×10³ and the largest was 1.1×10⁴ at seed 165.
+
+![DES Cluster optical NLA 3×2pt prediction distance at 50 prior draws](figures/accuracy_nmodels_example4_seed137.png)
+
+The plot relates Δχ² to the matter density and the clustering-amplitude
+ratio above. The dashed line marks Δχ² = 0.2. All point colors saturate
+at Δχ² = 1, and the vertical axes show the measured distances.
+[Plotted values](figures/accuracy_nmodels_example4_seed137.txt)
+
+The saved hybrid-emulator Fisher reference covers the cluster 4×2pt+N
+likelihood. [Saved cluster contours](../fisher_reference/w0wa/contours.json)
+
+Run from the activated `Cocoa/` directory with the thread settings in
+[Running the tests](#run_tests).
+
+**Step :one:** Compare the ordinary predictions with the saved vectors.
+
+```bash
+python -m pytest -s projects/des_cluster/tests/data_vector/test_accuracy.py -k nmodels
+```
+
+The run prints where it wrote the figure and its plotted values.
+`COCOA_ACCURACY_NMODELS_FIGURES` can set that directory.
+
+To refresh the pushed reference, use the same environment.
+
+**Step :one:** Recompute and save the 50 pushed predictions.
+
+```bash
+python projects/des_cluster/tests/generate_frozen_reference.py --nmodels
+```
 
 ### The non-Limber early-exit tolerance checks (`test_nonlimber_tolerance.py`) <a name="nonlimber_tolerance"></a>
 

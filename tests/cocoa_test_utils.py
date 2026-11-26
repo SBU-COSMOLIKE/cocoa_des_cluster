@@ -143,9 +143,15 @@ HIGH_ACCURACY_LIKELIHOOD = {
     "kmax_boltzmann": 40.0,     # default 10.0 (cosmic shear: 7.5)
 }
 
+# The random-model test uses this current NLA analysis and its joint prior.
+NMODELS_CURRENT_PRIOR = True
+NMODELS_EXAMPLES = (("example4", "DES Cluster - 3×2pt"),)
+
+
 # The frozen configurations. "likelihood" is the cobaya component
 # name, needed to reach that block inside the loaded info dictionary;
-# "provenance" names the human-readable snapshot (never loaded).
+# "provenance" names the current evaluation YAML for the random-model
+# test. frozen/ retains a snapshot for reference.
 # Examples 1-2 read the ONE joint data vector and covariance of the
 # synthetic DES Y6-like data set (ss, gs, gg, cg, N, cc, cs; 2812
 # entries); each combination's mask selects its blocks. Examples 3-4
