@@ -562,8 +562,8 @@ Use `--plot-only /path/to/run` to redraw a completed result. The
 
 ## FoM convergence
 
-This CAMB test uses the ordinary accuracy and physical prescription of each
-benchmark to build one full local Fisher matrix. The figure of merit is
+This CAMB test builds one full local Fisher matrix at each live Evaluate
+example's ordinary accuracy and physical prescription. The figure of merit is
 $1/\sqrt{\det C_{w_0,w_a}}$, with nuisance parameters marginalized in the
 Gaussian approximation. The sampled pair $w_0,w_0+w_a$ has the same ellipse
 area. Gaussian prior curvature enters the Fisher matrix, and prior bounds
@@ -599,13 +599,18 @@ The baseline differentiates 30 parameters for 4×2pt+N and 42 for
 refined-to-confirmation FoM change. The prediction-distance target
 $E<0.2$ applies to the live radial projection checks above.
 
-Run from activated Cocoa with two MPI ranks, four OpenMP threads per rank
-and one BLAS thread. Use `EXAMPLE_EVALUATE2.yaml` and a separate output
+From activated Cocoa, set four OpenMP threads and one BLAS thread per rank.
+
+```bash
+export OMP_NUM_THREADS=4
+export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1
+```
+
+Launch two MPI ranks. Use `EXAMPLE_EVALUATE2.yaml` and a separate output
 directory for 6×2pt+N.
 
 ```bash
-OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  VECLIB_MAXIMUM_THREADS=1 mpirun -n 2 --bind-to none python -m mpi4py \
+mpirun -n 2 --bind-to none python -m mpi4py \
   projects/des_cluster/tests/check_fom_convergence.py --mpi \
   --configuration EXAMPLE_EVALUATE1.yaml \
   --points projects/des_cluster/tests/fisher_reference/w0wa/prior_50.txt \
@@ -619,14 +624,17 @@ settings for each tier, and the measured and omitted columns.
 
 ## :interrobang: FAQ: What does this project's snapshot hold? <a name="frozen_copy"></a>
 
-Every test except `test_neutrino_cb.py` reads nothing from the live
-project: not the project's `data/` folder, not the `EXAMPLE_EVALUATE`
-yaml files, and not the likelihood default yaml files.
-`test_neutrino_cb.py` builds its state from the live
-`likelihood/combo_4x2pt_N.yaml` and `data/des_cluster_y6_4x2ptN.dataset`
-(with dummy data-vector, mask and covariance files) through
-`validation/compare_reference.py`, and does not check the manifest.
-For the other tests, `frozen/` holds:
+The frozen regression checks load their likelihood configurations,
+fiducials and data files from `frozen/`. The
+[projection accuracy tests](test_projection_accuracy.py) and
+[FoM convergence runs](../check_fom_convergence.py) use the live Evaluate YAMLs
+and their data and masks. `test_neutrino_cb.py` builds its state from
+the live `likelihood/combo_4x2pt_N.yaml` and
+`data/des_cluster_y6_4x2ptN.dataset` through
+`validation/compare_reference.py`, with dummy data-vector, mask and
+covariance files.
+
+The `frozen/` snapshot contains the following files.
 
 | `frozen/` entry | holds |
 |---|---|
@@ -635,20 +643,19 @@ For the other tests, `frozen/` holds:
 | `reference_chi2.json` | the default-settings $\chi^2$ of each configuration |
 | `EXAMPLE_EVALUATE{1,2,3,4}.yaml` | snapshots kept only so a human can diff how the live examples drifted since the freeze |
 
-In the configuration modules every option and every parameter is
-written out, including the ones that normally come from
-`params_cluster.yaml` and the other default files, so editing those
-files cannot change what the tests evaluate.
+The configuration modules record the settings and parameters resolved
+at freeze time, including those inherited from `params_cluster.yaml`
+and the other default files.
 
 The files of the project's `data/` folder that no example reads stay out of the copy
 (the all-ones mask of the DES Y3 placeholder data set, the baryon PCA
 inputs, and the table of observed redMaPPer counts; `DATA_IGNORE` in
 `generate_frozen_reference.py` lists them).
 
-`manifest_sha256.json` pins every byte of the snapshot
-([the shared protection mechanism](https://github.com/CosmoLike/cocoa-cosmolike-core/blob/main/README.md#dv_frozen));
-every test except `test_neutrino_cb.py` verifies the manifest first and
-refuses to run when a file under `frozen/` was edited, naming the file.
+The frozen regression checks verify the snapshot against
+`manifest_sha256.json` before evaluating a model. If a file differs,
+the manifest check reports its path.
+[Shared manifest checks](https://github.com/CosmoLike/cocoa-cosmolike-core/blob/main/README.md#dv_frozen)
 
 ## :interrobang: FAQ: Why is the reference $\chi^2$ near zero? <a name="synthetic_vectors"></a>
 
@@ -697,9 +704,9 @@ data sets (the 2812-entry joint vector of the cluster combinations
 and the 900-entry vector of the DES Y3 placeholder), while pytest
 runs every test file in one process.
 
-The reference, race, and accuracy tests are covered by the worker
-subprocess of each model build. The tests that must build their
-models in process are not: the two ladders, the two non-Limber
+The frozen reference, race and accuracy checks build their models
+in worker subprocesses. Each live projection accuracy test uses its
+own subprocess through `own_process`. The two ladders, the two non-Limber
 checks, and the photo-z convention check read the full data vector
 from the compiled interface and need several model builds to share
 cosmolike's caches. The cluster ladder keeps pytest's process; each
