@@ -24,6 +24,13 @@ lmax_nonlimber: 150
 # 0.92, w_gg 0.47: the MagLim lens n(z) tails reach z = 2.99) and 0.048 at 1
 # (cluster blocks 6e-3 either way), for ~30% more cosmolike time.
 integration_accuracy: 1
+# Multipliers for each probe’s radial integration resolution.
+integration_accuracy_gg: 1.0
+integration_accuracy_cg: 1.0
+integration_accuracy_cc: 1.0
+integration_accuracy_cs: 1.0
+# Counts refine the outer redshift rule from at least 1024 nodes.
+integration_accuracy_n: 1.0
 # n(z) interpolation: 0 = cubic spline, 1 = linear, 2+ = Steffen (monotone)
 # 0: original midpoint curve (default); 1: histogram + Akima.
 # Akima ignores photoz_interpolation_type; select its fixed first factor below.
