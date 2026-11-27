@@ -19,7 +19,7 @@ Run from the cocoa/Cocoa folder after `source start_cocoa.sh`:
     python ./projects/des_cluster/EXAMPLE_EMUL2_NAUTILUS2.py --check
     mpirun -n 2 --bind-to none python \
         ./projects/des_cluster/EXAMPLE_EMUL2_NAUTILUS2.py \
-        --nlive 1000 --neff 10000 --maxfeval 100000 \
+        --nlive 1000 --neff 15000 \
         --outroot hybrid_nautilus2
 
 --check evaluates the fiducial point of the YAML, prints the sampled-
