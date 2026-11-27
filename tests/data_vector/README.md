@@ -602,6 +602,9 @@ Run from `cocoa/Cocoa` in bash after [activating Cocoa](#run_tests).
 the same saved cosmologies and nuisance values. Score the prediction
 differences using the benchmark mask and covariance.
 
+The command uses emulated distances and spectra for the EMUL2 candidate.
+The saved figures and results below used CAMB distances for both routes.
+
 The synthetic DES Y6-like 4×2pt+N mask retains 889 rows. Cluster abundances use
 the linear cold-matter spectrum. For CPL, the candidate rescales Eisenstein–Hu
 growth by the square root of the ratio of linear power in the CPL cosmology to

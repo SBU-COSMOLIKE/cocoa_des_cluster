@@ -10,7 +10,8 @@ OpenMP accelerates each rank's model evaluations. Keep BLAS at one thread.
 
 The shared Cocoa test replays the saved broad and focused parameter
 tables with one massive neutrino at 0.06 eV. Both routes use the same
-nuisance values, plain mead2020 and CAMB background distances.
+nuisance values and plain mead2020. The EMUL2 candidate uses emulated
+distances and spectra.
 
 Use EMULATOR_CODE_DIR and EMULATOR_DATA_DIR to select candidate checkouts.
 COCOA_TEST_INTERFACE_DIR optionally selects an independently built native
